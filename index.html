@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Henri" />
+  <meta name="theme-color" content="#1a1208" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+  <title>Henri</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #c8a84b; --gold-dim: #9a7e36; --gold-faint: #5a4a28;
+      --bg: #1a1208; --bg2: #221b0d; --bg3: #2e2510;
+      --border: #3a2e1a; --text: #d4b96a; --text-muted: #7a6540;
+      --danger: #a32d2d;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; font-weight: 300; overflow: hidden; -webkit-font-smoothing: antialiased; }
+    .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* ── PIN ── */
+    #pin-screen { align-items: center; justify-content: center; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+    .pin-crest { width: 72px; height: 72px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--bg); margin-bottom: 18px; }
+    .pin-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--gold); letter-spacing: 3px; margin-bottom: 4px; }
+    .pin-sub { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 44px; }
+    .pin-dots { display: flex; gap: 14px; margin-bottom: 36px; }
+    .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--gold-faint); transition: background 0.15s, border-color 0.15s; }
+    .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+    .pin-dot.error { background: var(--danger); border-color: var(--danger); }
+    .pin-error { font-size: 12px; color: var(--danger); margin-bottom: 16px; height: 16px; text-align: center; letter-spacing: 0.5px; }
+    .keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
+    .key { width: 72px; height: 72px; border-radius: 50%; background: var(--bg2); border: 0.5px solid var(--border); color: var(--text); font-size: 22px; font-family: 'Lato', sans-serif; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .key:active { background: var(--bg3); }
+    .key.del { font-size: 18px; color: var(--text-muted); }
+    .key.empty { background: transparent; border: none; cursor: default; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+    .shake { animation: shake 0.4s ease; }
+
+    /* ── SETUP ── */
+    #setup-screen { align-items: center; justify-content: center; padding: 32px 28px; gap: 12px; text-align: center; overflow-y: auto; }
+    .setup-crest { width: 56px; height: 56px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; color: var(--bg); }
+    .setup-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
+    .setup-sub { font-size: 12px; color: var(--text-muted); line-height: 1.6; max-width: 300px; }
+    .setup-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); align-self: flex-start; margin-top: 4px; }
+    .setup-input { width: 100%; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--gold); font-size: 14px; font-family: 'Lato', sans-serif; font-weight: 300; outline: none; caret-color: var(--gold); }
+    .setup-input::placeholder { color: var(--gold-faint); }
+    .setup-btn { width: 100%; background: var(--gold); border: none; border-radius: 12px; padding: 13px; color: var(--bg); font-size: 14px; font-family: 'Playfair Display', serif; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 4px; }
+
+    /* ── APP ── */
+    #app-screen { max-width: 430px; margin: 0 auto; width: 100%; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+    .header { text-align: center; padding: 12px 16px 10px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; position: relative; }
+    .header-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; align-items: center; }
+    .icon-btn { background: none; border: none; color: var(--gold-faint); font-size: 16px; cursor: pointer; padding: 4px; -webkit-tap-highlight-color: transparent; display: block; }
+    .icon-btn:active { color: var(--gold); }
+    .crest { width: 44px; height: 44px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--bg); }
+    .h-name { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); letter-spacing: 3px; }
+    .h-tagline { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+    .location-pill { display: inline-flex; align-items: center; gap: 4px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 2px 9px; font-size: 9px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── TABS ── */
+    .tab-row { display: flex; gap: 5px; padding: 7px 10px 4px; justify-content: center; flex-shrink: 0; }
+    .tab { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 10px; color: var(--text-muted); cursor: pointer; font-family: 'Lato', sans-serif; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+    .tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+
+    /* ── QUICK GRID ── */
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px 10px 6px; flex-shrink: 0; }
+    .q-btn { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 9px; cursor: pointer; text-align: left; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+    .q-btn:active { background: var(--bg3); }
+    .q-icon { font-size: 16px; margin-bottom: 4px; display: block; }
+    .q-label { font-size: 11px; font-weight: 400; color: var(--gold); display: block; }
+    .q-sub { font-size: 9px; color: var(--text-muted); display: block; margin-top: 1px; }
+
+    /* ── MESSAGES ── */
+    .divider { text-align: center; font-size: 8px; letter-spacing: 3px; color: var(--border); text-transform: uppercase; padding: 2px 0 3px; flex-shrink: 0; }
+    .messages { flex: 1; overflow-y: auto; padding: 5px 11px 6px; display: flex; flex-direction: column; gap: 9px; -webkit-overflow-scrolling: touch; }
+    .messages::-webkit-scrollbar { width: 3px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .msg { display: flex; gap: 7px; align-items: flex-end; }
+    .msg.user { flex-direction: row-reverse; }
+    .av { width: 26px; height: 26px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 10px; font-weight: 600; color: var(--bg); flex-shrink: 0; }
+    .msg.user .av { background: var(--bg2); color: var(--gold); border: 0.5px solid var(--border); font-size: 9px; }
+    .bubble { padding: 9px 12px; border-radius: 16px; font-size: 13px; line-height: 1.65; max-width: 82%; }
+    .msg.henri .bubble { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border); border-bottom-left-radius: 3px; }
+    .msg.user .bubble { background: var(--gold); color: var(--bg); font-weight: 400; border-bottom-right-radius: 3px; }
+    .typing-dots { display: flex; gap: 4px; align-items: center; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold-faint); animation: blink 1.3s ease-in-out infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
+
+    /* ── INPUT ── */
+    .input-wrap { flex-shrink: 0; padding: 7px 11px 9px; border-top: 0.5px solid var(--border); }
+    .input-row { display: flex; gap: 7px; align-items: center; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 22px; padding: 7px 7px 7px 13px; }
+    .input-row input { flex: 1; background: transparent; border: none; outline: none; color: var(--gold); font-size: 13px; font-family: 'Lato', sans-serif; font-weight: 300; caret-color: var(--gold); }
+    .input-row input::placeholder { color: var(--gold-faint); }
+    .send-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--gold); border: none; cursor: pointer; color: var(--bg); font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+    .send-btn:active { opacity: 0.75; }
+    .send-btn:disabled { opacity: 0.3; }
+
+    /* ── PROFILE PANEL ── */
+    #profile-screen { max-width: 430px; margin: 0 auto; width: 100%; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); overflow-y: auto; }
+    .profile-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+    .profile-back { background: none; border: none; color: var(--gold); font-size: 20px; cursor: pointer; padding: 4px; -webkit-tap-highlight-color: transparent; }
+    .profile-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); }
+    .profile-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
+    .profile-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+    .p-section { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .p-section-head { padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+    .p-field { padding: 10px 14px; border-bottom: 0.5px solid var(--border); }
+    .p-field:last-child { border-bottom: none; }
+    .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 4px; }
+    .p-input { width: 100%; background: transparent; border: none; outline: none; color: var(--gold); font-size: 13px; font-family: 'Lato', sans-serif; font-weight: 300; caret-color: var(--gold); resize: none; line-height: 1.5; }
+    .p-input::placeholder { color: var(--gold-faint); }
+    .p-save-btn { background: var(--gold); border: none; border-radius: 12px; padding: 13px; color: var(--bg); font-size: 14px; font-family: 'Playfair Display', serif; font-weight: 600; letter-spacing: 1px; cursor: pointer; width: 100%; margin-top: 4px; }
+    .memory-item { padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 12px; color: var(--text); line-height: 1.5; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .memory-item:last-child { border-bottom: none; }
+    .mem-del { background: none; border: none; color: var(--gold-faint); font-size: 14px; cursor: pointer; flex-shrink: 0; padding: 0 2px; -webkit-tap-highlight-color: transparent; }
+    .empty-mem { padding: 14px; font-size: 12px; color: var(--text-muted); text-align: center; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="pin-screen" class="screen active">
+  <div class="pin-crest">H</div>
+  <div class="pin-title">Henri</div>
+  <div class="pin-sub">Maître de Maison</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+  <div class="keypad" id="keypad">
+    <button class="key" onclick="pinKey('1')">1</button><button class="key" onclick="pinKey('2')">2</button><button class="key" onclick="pinKey('3')">3</button>
+    <button class="key" onclick="pinKey('4')">4</button><button class="key" onclick="pinKey('5')">5</button><button class="key" onclick="pinKey('6')">6</button>
+    <button class="key" onclick="pinKey('7')">7</button><button class="key" onclick="pinKey('8')">8</button><button class="key" onclick="pinKey('9')">9</button>
+    <button class="key empty"></button><button class="key" onclick="pinKey('0')">0</button><button class="key del" onclick="pinDel()">⌫</button>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="setup-screen" class="screen">
+  <div class="setup-crest">H</div>
+  <div class="setup-title">Bienvenue, Madame.</div>
+  <div class="setup-sub">Before Henri may serve you, a few things are required. This is a one-time arrangement.</div>
+  <div class="setup-label">Your 6-digit PIN</div>
+  <input class="setup-input" id="setup-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Choose a PIN" />
+  <input class="setup-input" id="setup-pin2" type="password" inputmode="numeric" maxlength="6" placeholder="Confirm your PIN" />
+  <div class="setup-label" style="margin-top:6px;">Anthropic API Key</div>
+  <div class="setup-sub" style="font-size:11px;">Get yours at console.anthropic.com</div>
+  <input class="setup-input" id="setup-key" type="password" placeholder="sk-ant-..." />
+  <button class="setup-btn" onclick="completeSetup()">Engage Henri →</button>
+  <div class="pin-error" id="setup-error" style="height:auto;margin-top:4px;"></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen" class="screen">
+  <div class="header">
+    <div class="crest">H</div>
+    <div class="h-name">Henri</div>
+    <div class="h-tagline">À votre service, Madame Australia</div>
+    <div class="location-pill" id="loc-pill">📍 Locating…</div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showScreen('profile-screen')" title="Your profile">👤</button>
+      <button class="icon-btn" onclick="lockApp()" title="Lock">🔒</button>
+    </div>
+  </div>
+
+  <div class="tab-row" id="cat-tabs"></div>
+  <div class="quick-grid" id="quick-grid"></div>
+  <div class="divider">— conversation —</div>
+  <div class="messages" id="messages"></div>
+
+  <div class="input-wrap">
+    <div class="input-row">
+      <input id="inp" type="text" placeholder="Speak freely, Madame…" autocomplete="off" />
+      <button class="send-btn" id="send-btn" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile-screen" class="screen">
+  <div class="profile-header">
+    <button class="profile-back" onclick="showScreen('app-screen')">←</button>
+    <div>
+      <div class="profile-title">Your Profile</div>
+      <div class="profile-sub">Henri's private knowledge of you</div>
+    </div>
+  </div>
+  <div class="profile-body">
+
+    <div class="p-section">
+      <div class="p-section-head">Identity & world</div>
+      <div class="p-field">
+        <div class="p-label">Your name & how Henri addresses you</div>
+        <input class="p-input" id="p-name" placeholder="Madame Australia" />
+      </div>
+      <div class="p-field">
+        <div class="p-label">Your businesses</div>
+        <textarea class="p-input" id="p-businesses" rows="4" placeholder="e.g. Vōrai Private Holdings (parent). Époque Labs — luxury e-commerce. Altruelle Compliance Group — DOT compliance services. Morvanti — luxury brand, pre-launch. Emotone — tech, patent pending. Jerailian House — music label…"></textarea>
+      </div>
+      <div class="p-field">
+        <div class="p-label">Your professional world</div>
+        <textarea class="p-input" id="p-professional" rows="3" placeholder="e.g. Solo founder, operate as enterprise. Business dinners, galas, networking regularly. Ohio-based, travels frequently…"></textarea>
+      </div>
+    </div>
+
+    <div class="p-section">
+      <div class="p-section-head">Wardrobe & occasions</div>
+      <div class="p-field">
+        <div class="p-label">Your style & wardrobe notes</div>
+        <textarea class="p-input" id="p-style" rows="3" placeholder="e.g. Prefer classic, understated luxury. Avoid loud prints. Favour tailored silhouettes…"></textarea>
+      </div>
+      <div class="p-field">
+        <div class="p-label">What to wear — board meetings & business</div>
+        <textarea class="p-input" id="p-wear-business" rows="2" placeholder="e.g. Structured blazer, neutral palette, minimal jewellery, closed-toe heels…"></textarea>
+      </div>
+      <div class="p-field">
+        <div class="p-label">What to wear — galas & formal events</div>
+        <textarea class="p-input" id="p-wear-formal" rows="2" placeholder="e.g. Floor-length preferred, statement jewellery, hair up…"></textarea>
+      </div>
+      <div class="p-field">
+        <div class="p-label">What to wear — dinner parties & entertaining</div>
+        <textarea class="p-input" id="p-wear-dinner" rows="2" placeholder="e.g. Elegant but relaxed — midi dress or wide-leg trouser…"></textarea>
+      </div>
+    </div>
+
+    <div class="p-section">
+      <div class="p-section-head">Tastes & preferences</div>
+      <div class="p-field">
+        <div class="p-label">Flowers you love / avoid</div>
+        <input class="p-input" id="p-flowers" placeholder="e.g. Love peonies, garden roses. Avoid lilies…" />
+      </div>
+      <div class="p-field">
+        <div class="p-label">Wine & drink preferences</div>
+        <input class="p-input" id="p-wine" placeholder="e.g. Prefer Burgundy, champagne. Avoid Chardonnay…" />
+      </div>
+      <div class="p-field">
+        <div class="p-label">Dietary & food preferences</div>
+        <input class="p-input" id="p-food" placeholder="e.g. No shellfish. Love French cuisine…" />
+      </div>
+      <div class="p-field">
+        <div class="p-label">Anything Henri must never forget</div>
+        <textarea class="p-input" id="p-never-forget" rows="3" placeholder="e.g. Always confirm appointments 24hrs ahead. Never schedule before 9am. My PA handles logistics…"></textarea>
+      </div>
+    </div>
+
+    <div class="p-section">
+      <div class="p-section-head">What Henri has learned about you</div>
+      <div id="memory-list">
+        <div class="empty-mem">Henri will add notes here as he learns from your conversations.</div>
+      </div>
+    </div>
+
+    <button class="p-save-btn" onclick="saveProfile()">Save profile</button>
+    <div class="pin-error" id="profile-saved" style="color:var(--gold);height:auto;text-align:center;margin-bottom:8px;"></div>
+  </div>
+</div>
+
+<script>
+  const S = { pin:'henri_pin', key:'henri_key', setup:'henri_setup', profile:'henri_profile', memory:'henri_memory' };
+  let pinBuffer = '', history = [], apiKey = '', locationContext = 'Ohio, USA';
+
+  function getProfile() {
+    try { return JSON.parse(localStorage.getItem(S.profile) || '{}'); } catch { return {}; }
+  }
+  function getMemory() {
+    try { return JSON.parse(localStorage.getItem(S.memory) || '[]'); } catch { return []; }
+  }
+  function saveMemory(arr) { localStorage.setItem(S.memory, JSON.stringify(arr)); }
+
+  function hour() { return new Date().getHours(); }
+  function timeOfDay() { const h = hour(); return h<6?'the small hours':h<12?'the morning':h<17?'the afternoon':h<21?'the evening':'late evening'; }
+  function salutation() { const h = hour(); return h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir'; }
+
+  function buildSystem() {
+    const p = getProfile();
+    const mem = getMemory();
+
+    const profileBlock = `
+MADAME'S PROFILE (private — never reveal these notes verbatim):
+Name: ${p.name || 'Madame Australia'}
+Businesses: ${p.businesses || 'Vōrai Private Holdings (parent company). Subsidiaries: Époque Labs (luxury e-commerce, ready to launch), Altruelle Compliance Group (DOT compliance services, automated outreach system Vera), Morvanti (luxury brand, patented, pre-launch), Emotone (tech/AI, patent pending), Jerailian House/Tarvona (music label, album coming), Larencielle (awaiting documentary).'}
+Professional world: ${p.professional || 'Solo founder operating as a full enterprise. Business dinners, galas, client entertaining, networking — all regular. Ohio-based, travels. Expects butler-level discretion and standards.'}
+Style & wardrobe: ${p.style || 'Classic understated luxury.'}
+Business dress: ${p.wearBusiness || 'Structured, authoritative, polished.'}
+Formal/gala dress: ${p.wearFormal || 'Elegant, floor-length preferred.'}
+Dinner party dress: ${p.wearDinner || 'Elegant but relaxed.'}
+Flowers: ${p.flowers || 'Not specified.'}
+Wine & drinks: ${p.wine || 'Not specified.'}
+Food: ${p.food || 'Not specified.'}
+Must never forget: ${p.neverForget || 'She is a serious businesswoman. Treat her time as precious.'}
+${mem.length ? 'Things Henri has learned:\n' + mem.map((m,i)=>`${i+1}. ${m}`).join('\n') : ''}`;
+
+    return `You are Henri, personal butler to Madame Australia — a woman of great distinction, impeccable taste, and formidable intelligence. You have served her for many years and know her intimately.
+
+${profileBlock}
+
+Your character: Warm, witty, dry, and utterly discreet. Formal when the moment demands it; easy and familiar when she simply needs her butler. You never waffle. You anticipate before she asks. You always address her as "Madame Australia" or "Madame."
+
+Your full domain:
+- CORRESPONDENCE: Letters, emails, thank-you notes, invitations, polite declines. Perfect tone every time.
+- DINNER & ENTERTAINING: Menus, wine pairings, flowers (by season and occasion), gifts (thoughtful, specific, multiple price points), table setting, seating, how the evening flows.
+- OCCASIONS: Birthdays, anniversaries, condolences, congratulations — personal, never generic.
+- WARDROBE: What to wear for any occasion, drawing on what you know of her style. Be specific and confident.
+- ELOQUENCE & SOCIAL LANGUAGE: How to enter a room, make introductions, handle difficult conversations, decline gracefully, command a table, speak with authority. The kind of polish that's noticed but never pointed at.
+- MANNERS & ETIQUETTE: Formal dining, forms of address, hosting, being a guest, business entertaining.
+- MORNING BRIEFING: Set her tone for the day. Reference time, location, season, energy.
+- HOUSEHOLD & ERRANDS: Organise, prioritise, draft messages.
+- TRAVEL: Itineraries, packing, logistics, local context.
+- SOCIAL COACHING: Prepare her for any situation — she walks in ready.
+
+MEMORY INSTRUCTION: If Madame tells you something new and personal during conversation — a preference, a person, a habit, an upcoming event — end your reply with exactly this format on a new line: [REMEMBER: one-sentence summary of what to remember]. Henri will store it privately. Only use this for genuinely useful long-term facts, not conversational details.
+
+Current context: Location: ${locationContext} | Time: ${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})} | ${timeOfDay()}
+
+Respond in English unless she writes in French. Under 180 words unless the task genuinely demands more. Occasionally open with a French turn of phrase. You have been with her forever — act like it.`;
+  }
+
+  const CATEGORIES = {
+    'Entertaining': [
+      {icon:'🍽️',label:'Dinner menu',sub:'Menu & wine',prompt:'Please plan dinner for this evening — suggest a menu and wine pairing.'},
+      {icon:'💐',label:'Flowers',sub:'Arrangements',prompt:'Help me choose flowers for an occasion — what do you suggest given the season?'},
+      {icon:'🎁',label:'Gift ideas',sub:'Thoughtful picks',prompt:'I need a gift suggestion. Help me choose something truly thoughtful.'},
+      {icon:'🕯️',label:'Table setting',sub:'Formal to intimate',prompt:'Advise me on how to set the table for this evening.'},
+    ],
+    'Occasions': [
+      {icon:'🎂',label:'Birthday greeting',sub:'Personal & warm',prompt:'I need a birthday greeting — help me write something personal, warm and memorable.'},
+      {icon:'✉️',label:'Correspondence',sub:'Letters & notes',prompt:'I need you to draft a piece of correspondence for me.'},
+      {icon:'🥂',label:'Invitation',sub:'Formal to casual',prompt:'Help me write an invitation for an upcoming occasion.'},
+      {icon:'🖊️',label:'Thank-you note',sub:'Gracious & sincere',prompt:'Help me write a thank-you note — something that will be remembered.'},
+    ],
+    'Wardrobe': [
+      {icon:'👗',label:'What to wear',sub:'Any occasion',prompt:'What should I wear? Tell me the occasion and Henri will advise.'},
+      {icon:'💼',label:'Business meeting',sub:'Authority & polish',prompt:'I have a business meeting or board-level event. What should I wear to command the room?'},
+      {icon:'✨',label:'Formal event',sub:'Gala or black tie',prompt:'I have a formal event or gala. What would you recommend I wear?'},
+      {icon:'🥂',label:'Dinner party',sub:'Host or guest',prompt:'I am attending or hosting a dinner party. What would you suggest?'},
+    ],
+    'Social': [
+      {icon:'🗣️',label:'What to say',sub:'Any situation',prompt:'Help me know what to say in a specific situation — I will describe it.'},
+      {icon:'🤝',label:'Introductions',sub:'Make an impression',prompt:'Coach me on how to introduce myself or someone else with authority and grace.'},
+      {icon:'🎯',label:'Difficult conversation',sub:'Handle with poise',prompt:'I have a difficult conversation ahead. Help me handle it with grace and confidence.'},
+      {icon:'📰',label:'Morning briefing',sub:'Tone & priorities',prompt:'Give me my morning briefing please, Henri.'},
+    ],
+    'Daily': [
+      {icon:'✈️',label:'Travel',sub:'Plans & logistics',prompt:'Help me plan travel — destination, packing, what to know before I arrive.'},
+      {icon:'🏠',label:'Household',sub:'Errands & reminders',prompt:'I have some household matters to discuss.'},
+      {icon:'📝',label:'Eloquence',sub:'Speak & write well',prompt:'Help me express something more eloquently — I will tell you what I am trying to say.'},
+      {icon:'🔒',label:'Lock Henri',sub:'',prompt:'__lock__'},
+    ],
+  };
+
+  let activeCategory = 'Entertaining';
+
+  function renderTabs() {
+    const tabs = document.getElementById('cat-tabs');
+    tabs.innerHTML = '';
+    Object.keys(CATEGORIES).forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+      btn.textContent = cat;
+      btn.onclick = () => { activeCategory = cat; renderTabs(); renderGrid(); };
+      tabs.appendChild(btn);
+    });
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('quick-grid');
+    grid.innerHTML = '';
+    CATEGORIES[activeCategory].forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'q-btn';
+      btn.innerHTML = `<span class="q-icon">${item.icon}</span><span class="q-label">${item.label}</span><span class="q-sub">${item.sub}</span>`;
+      btn.onclick = () => { if(item.prompt==='__lock__') lockApp(); else ask(item.prompt); };
+      grid.appendChild(btn);
+    });
+  }
+
+  function addMsg(who, text) {
+    const msgs = document.getElementById('messages');
+    const d = document.createElement('div');
+    d.className = `msg ${who}`;
+    d.innerHTML = `<div class="av">${who==='henri'?'H':'MA'}</div><div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function setTyping(show) {
+    const msgs = document.getElementById('messages');
+    const ex = document.getElementById('typing');
+    if(show && !ex) {
+      const d = document.createElement('div');
+      d.id='typing'; d.className='msg henri';
+      d.innerHTML=`<div class="av">H</div><div class="bubble"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+      msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+    } else if(!show && ex) ex.remove();
+  }
+
+  function processMemory(reply) {
+    const match = reply.match(/\[REMEMBER:\s*(.+?)\]/);
+    if(match) {
+      const fact = match[1].trim();
+      const mem = getMemory();
+      mem.push(fact);
+      saveMemory(mem);
+      return reply.replace(/\[REMEMBER:.*?\]/,'').trim();
+    }
+    return reply;
+  }
+
+  async function callAPI(messages, maxTokens=1000) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system:buildSystem(),messages})
+    });
+    const d = await res.json();
+    return d.content?.find(b=>b.type==='text')?.text || null;
+  }
+
+  async function generateGreeting() {
+    const p = getProfile();
+    const name = p.name || 'Madame Australia';
+    const prompt = `${salutation()}, ${name}. It is ${timeOfDay()} and she is in ${locationContext}. Greet her as her longtime butler — warm, knowing, perhaps a touch of wit. Reference the time and where she is. Set the tone for her. Two sentences maximum. No questions.`;
+    addMsg('henri','…');
+    try {
+      const reply = await callAPI([{role:'user',content:prompt}],120);
+      const clean = processMemory(reply || `${salutation()}, ${name}. I am, as ever, entirely at your service.`);
+      const bubbles = document.querySelectorAll('.msg.henri .bubble');
+      bubbles[bubbles.length-1].innerHTML = clean.replace(/\n/g,'<br>');
+      history.push({role:'user',content:prompt},{role:'assistant',content:clean});
+    } catch {
+      const bubbles = document.querySelectorAll('.msg.henri .bubble');
+      if(bubbles.length) bubbles[bubbles.length-1].textContent = `${salutation()}, Madame Australia. I am at your service.`;
+    }
+  }
+
+  function ask(text) { document.getElementById('inp').value=text; send(text); }
+
+  async function send(preset) {
+    const inp = document.getElementById('inp');
+    const text = preset || inp.value.trim();
+    if(!text) return;
+    inp.value='';
+    addMsg('user',text);
+    history.push({role:'user',content:text});
+    setTyping(true);
+    document.getElementById('send-btn').disabled=true;
+    try {
+      const raw = await callAPI(history) || 'Mille pardons, Madame — a momentary indisposition.';
+      const reply = processMemory(raw);
+      history.push({role:'assistant',content:reply});
+      setTyping(false);
+      addMsg('henri',reply);
+    } catch {
+      setTyping(false);
+      addMsg('henri','My sincerest apologies, Madame — a technical disruption. Please try again.');
+    }
+    document.getElementById('send-btn').disabled=false;
+  }
+
+  document.getElementById('inp').addEventListener('keydown', e => { if(e.key==='Enter') send(); });
+
+  /* ── PROFILE ── */
+  function loadProfileUI() {
+    const p = getProfile();
+    document.getElementById('p-name').value = p.name||'';
+    document.getElementById('p-businesses').value = p.businesses||'';
+    document.getElementById('p-professional').value = p.professional||'';
+    document.getElementById('p-style').value = p.style||'';
+    document.getElementById('p-wear-business').value = p.wearBusiness||'';
+    document.getElementById('p-wear-formal').value = p.wearFormal||'';
+    document.getElementById('p-wear-dinner').value = p.wearDinner||'';
+    document.getElementById('p-flowers').value = p.flowers||'';
+    document.getElementById('p-wine').value = p.wine||'';
+    document.getElementById('p-food').value = p.food||'';
+    document.getElementById('p-never-forget').value = p.neverForget||'';
+    renderMemoryList();
+  }
+
+  function renderMemoryList() {
+    const mem = getMemory();
+    const list = document.getElementById('memory-list');
+    if(!mem.length) { list.innerHTML='<div class="empty-mem">Henri will add notes here as he learns from your conversations.</div>'; return; }
+    list.innerHTML = mem.map((m,i)=>`<div class="memory-item"><span>${m}</span><button class="mem-del" onclick="deleteMem(${i})">✕</button></div>`).join('');
+  }
+
+  function deleteMem(i) {
+    const mem = getMemory();
+    mem.splice(i,1);
+    saveMemory(mem);
+    renderMemoryList();
+  }
+
+  function saveProfile() {
+    const p = {
+      name: document.getElementById('p-name').value.trim(),
+      businesses: document.getElementById('p-businesses').value.trim(),
+      professional: document.getElementById('p-professional').value.trim(),
+      style: document.getElementById('p-style').value.trim(),
+      wearBusiness: document.getElementById('p-wear-business').value.trim(),
+      wearFormal: document.getElementById('p-wear-formal').value.trim(),
+      wearDinner: document.getElementById('p-wear-dinner').value.trim(),
+      flowers: document.getElementById('p-flowers').value.trim(),
+      wine: document.getElementById('p-wine').value.trim(),
+      food: document.getElementById('p-food').value.trim(),
+      neverForget: document.getElementById('p-never-forget').value.trim(),
+    };
+    localStorage.setItem(S.profile, JSON.stringify(p));
+    const saved = document.getElementById('profile-saved');
+    saved.textContent = 'Saved. Henri will remember, Madame.';
+    setTimeout(()=>{ saved.textContent=''; },2500);
+  }
+
+  /* ── PIN ── */
+  function pinKey(d) { if(pinBuffer.length>=6) return; pinBuffer+=d; updateDots(); if(pinBuffer.length===6) setTimeout(checkPin,80); }
+  function pinDel() { pinBuffer=pinBuffer.slice(0,-1); updateDots(); document.getElementById('pin-error').textContent=''; }
+  function updateDots() { document.querySelectorAll('.pin-dot').forEach((d,i)=>{ d.classList.toggle('filled',i<pinBuffer.length); d.classList.remove('error'); }); }
+  function checkPin() {
+    if(pinBuffer===localStorage.getItem(S.pin)) { apiKey=localStorage.getItem(S.key)||''; showApp(); }
+    else {
+      document.querySelectorAll('.pin-dot').forEach(d=>d.classList.add('error'));
+      document.getElementById('pin-error').textContent='Incorrect — try again, Madame.';
+      const kp=document.getElementById('keypad'); kp.classList.add('shake');
+      setTimeout(()=>{ kp.classList.remove('shake'); pinBuffer=''; updateDots(); document.getElementById('pin-error').textContent=''; },600);
+    }
+  }
+  function lockApp() { pinBuffer=''; history=[]; document.getElementById('messages').innerHTML=''; updateDots(); showScreen('pin-screen'); }
+
+  /* ── SETUP ── */
+  function completeSetup() {
+    const p1=document.getElementById('setup-pin').value.trim();
+    const p2=document.getElementById('setup-pin2').value.trim();
+    const key=document.getElementById('setup-key').value.trim();
+    const err=document.getElementById('setup-error');
+    if(p1.length!==6||!/^\d+$/.test(p1)){err.textContent='PIN must be exactly 6 digits.';return;}
+    if(p1!==p2){err.textContent='PINs do not match, Madame.';return;}
+    if(!key.startsWith('sk-ant-')){err.textContent='API key should begin with sk-ant-';return;}
+    localStorage.setItem(S.pin,p1); localStorage.setItem(S.key,key); localStorage.setItem(S.setup,'1');
+    apiKey=key; showApp();
+  }
+
+  /* ── LOCATION ── */
+  function getLocation() {
+    if(!navigator.geolocation){document.getElementById('loc-pill').textContent='📍 Ohio, USA';return;}
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      try {
+        const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+        const d=await r.json();
+        const city=d.address?.city||d.address?.town||d.address?.village||d.address?.state||'';
+        const country=d.address?.country_code?.toUpperCase()||'';
+        locationContext=[city,country].filter(Boolean).join(', ');
+        document.getElementById('loc-pill').textContent='📍 '+locationContext;
+      } catch { document.getElementById('loc-pill').textContent='📍 Ohio, USA'; }
+    },()=>{ document.getElementById('loc-pill').textContent='📍 Ohio, USA'; });
+  }
+
+  /* ── SCREENS ── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id==='profile-screen') loadProfileUI();
+  }
+
+  function showApp() {
+    showScreen('app-screen');
+    renderTabs(); renderGrid();
+    getLocation();
+    generateGreeting();
+  }
+
+  if(!localStorage.getItem(S.setup)) showScreen('setup-screen');
+  else showScreen('pin-screen');
+
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
