@@ -333,8 +333,8 @@ ${mem.length ? 'Things Henri has noted:\n' + mem.map((m,i) => `${i+1}. ${m}`).jo
       })
     });
     const d = await res.json();
-    if(d.error) throw new Error(d.error.message);
-    return d.choices?.[0]?.message?.content || null;
+    if(d.error) throw new Error(JSON.stringify(d.error));
+return d.choices?.[0]?.message?.content || d.error?.message || null;
   }
 
   async function send(preset) {
