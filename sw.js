@@ -1,4 +1,4 @@
-const CACHE = 'henri-v3';
+const CACHE = 'henri-v4';
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', e => {
@@ -14,6 +14,8 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('openrouter.ai') || e.request.url.includes('fonts.googleapis.com') || e.request.url.includes('nominatim')) return;
+  if (e.request.url.includes('/api/') || 
+      e.request.url.includes('openrouter.ai') || 
+      e.request.url.includes('fonts.googleapis.com')) return;
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
