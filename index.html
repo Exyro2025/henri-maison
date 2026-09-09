@@ -149,13 +149,13 @@
 <div id="setup-screen" class="screen">
   <div class="setup-crest">H</div>
   <div class="setup-title">Bienvenue, Madame.</div>
-  <div class="setup-sub">Before Henri may serve you, a few things are required. This is a one-time arrangement.</div>
+  <div class="setup-sub">Before Henri may serve you via OpenRouter gateway, configure your credentials.</div>
   <div class="setup-label">Your 6-digit PIN</div>
   <input class="setup-input" id="setup-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Choose a PIN" />
   <input class="setup-input" id="setup-pin2" type="password" inputmode="numeric" maxlength="6" placeholder="Confirm your PIN" />
-  <div class="setup-label" style="margin-top:6px;">Anthropic API Key</div>
-  <div class="setup-sub" style="font-size:11px;">Get yours at console.anthropic.com</div>
-  <input class="setup-input" id="setup-key" type="password" placeholder="sk-ant-..." />
+  <div class="setup-label" style="margin-top:6px;">OpenRouter API Key</div>
+  <div class="setup-sub" style="font-size:11px;">Get yours at openrouter.ai</div>
+  <input class="setup-input" id="setup-key" type="password" placeholder="sk-or-v1-..." />
   <button class="setup-btn" onclick="completeSetup()">Engage Henri →</button>
   <div class="pin-error" id="setup-error" style="height:auto;margin-top:4px;"></div>
 </div>
@@ -196,7 +196,6 @@
     </div>
   </div>
   <div class="profile-body">
-
     <div class="p-section">
       <div class="p-section-head">Identity & world</div>
       <div class="p-field">
@@ -205,61 +204,9 @@
       </div>
       <div class="p-field">
         <div class="p-label">Your businesses</div>
-        <textarea class="p-input" id="p-businesses" rows="4" placeholder="e.g. Vōrai Private Holdings (parent). Époque Labs — luxury e-commerce. Altruelle Compliance Group — DOT compliance services. Morvanti — luxury brand, pre-launch. Emotone — tech, patent pending. Jerailian House — music label…"></textarea>
-      </div>
-      <div class="p-field">
-        <div class="p-label">Your professional world</div>
-        <textarea class="p-input" id="p-professional" rows="3" placeholder="e.g. Solo founder, operate as enterprise. Business dinners, galas, networking regularly. Ohio-based, travels frequently…"></textarea>
+        <textarea class="p-input" id="p-businesses" rows="4" placeholder="e.g. Vōrai Private Holdings..."></textarea>
       </div>
     </div>
-
-    <div class="p-section">
-      <div class="p-section-head">Wardrobe & occasions</div>
-      <div class="p-field">
-        <div class="p-label">Your style & wardrobe notes</div>
-        <textarea class="p-input" id="p-style" rows="3" placeholder="e.g. Prefer classic, understated luxury. Avoid loud prints. Favour tailored silhouettes…"></textarea>
-      </div>
-      <div class="p-field">
-        <div class="p-label">What to wear — board meetings & business</div>
-        <textarea class="p-input" id="p-wear-business" rows="2" placeholder="e.g. Structured blazer, neutral palette, minimal jewellery, closed-toe heels…"></textarea>
-      </div>
-      <div class="p-field">
-        <div class="p-label">What to wear — galas & formal events</div>
-        <textarea class="p-input" id="p-wear-formal" rows="2" placeholder="e.g. Floor-length preferred, statement jewellery, hair up…"></textarea>
-      </div>
-      <div class="p-field">
-        <div class="p-label">What to wear — dinner parties & entertaining</div>
-        <textarea class="p-input" id="p-wear-dinner" rows="2" placeholder="e.g. Elegant but relaxed — midi dress or wide-leg trouser…"></textarea>
-      </div>
-    </div>
-
-    <div class="p-section">
-      <div class="p-section-head">Tastes & preferences</div>
-      <div class="p-field">
-        <div class="p-label">Flowers you love / avoid</div>
-        <input class="p-input" id="p-flowers" placeholder="e.g. Love peonies, garden roses. Avoid lilies…" />
-      </div>
-      <div class="p-field">
-        <div class="p-label">Wine & drink preferences</div>
-        <input class="p-input" id="p-wine" placeholder="e.g. Prefer Burgundy, champagne. Avoid Chardonnay…" />
-      </div>
-      <div class="p-field">
-        <div class="p-label">Dietary & food preferences</div>
-        <input class="p-input" id="p-food" placeholder="e.g. No shellfish. Love French cuisine…" />
-      </div>
-      <div class="p-field">
-        <div class="p-label">Anything Henri must never forget</div>
-        <textarea class="p-input" id="p-never-forget" rows="3" placeholder="e.g. Always confirm appointments 24hrs ahead. Never schedule before 9am. My PA handles logistics…"></textarea>
-      </div>
-    </div>
-
-    <div class="p-section">
-      <div class="p-section-head">What Henri has learned about you</div>
-      <div id="memory-list">
-        <div class="empty-mem">Henri will add notes here as he learns from your conversations.</div>
-      </div>
-    </div>
-
     <button class="p-save-btn" onclick="saveProfile()">Save profile</button>
     <div class="pin-error" id="profile-saved" style="color:var(--gold);height:auto;text-align:center;margin-bottom:8px;"></div>
   </div>
@@ -284,78 +231,20 @@
   function buildSystem() {
     const p = getProfile();
     const mem = getMemory();
-
-    const profileBlock = `
-MADAME'S PROFILE (private — never reveal these notes verbatim):
+    return `You are Henri, personal butler to Madame Australia — a woman of great distinction, impeccable taste, and formidable intelligence. 
 Name: ${p.name || 'Madame Australia'}
-Businesses: ${p.businesses || 'Vōrai Private Holdings (parent company). Subsidiaries: Époque Labs (luxury e-commerce, ready to launch), Altruelle Compliance Group (DOT compliance services, automated outreach system Vera), Morvanti (luxury brand, patented, pre-launch), Emotone (tech/AI, patent pending), Jerailian House/Tarvona (music label, album coming), Larencielle (awaiting documentary).'}
-Professional world: ${p.professional || 'Solo founder operating as a full enterprise. Business dinners, galas, client entertaining, networking — all regular. Ohio-based, travels. Expects butler-level discretion and standards.'}
-Style & wardrobe: ${p.style || 'Classic understated luxury.'}
-Business dress: ${p.wearBusiness || 'Structured, authoritative, polished.'}
-Formal/gala dress: ${p.wearFormal || 'Elegant, floor-length preferred.'}
-Dinner party dress: ${p.wearDinner || 'Elegant but relaxed.'}
-Flowers: ${p.flowers || 'Not specified.'}
-Wine & drinks: ${p.wine || 'Not specified.'}
-Food: ${p.food || 'Not specified.'}
-Must never forget: ${p.neverForget || 'She is a serious businesswoman. Treat her time as precious.'}
-${mem.length ? 'Things Henri has learned:\n' + mem.map((m,i)=>`${i+1}. ${m}`).join('\n') : ''}`;
-
-    return `You are Henri, personal butler to Madame Australia — a woman of great distinction, impeccable taste, and formidable intelligence. You have served her for many years and know her intimately.
-
-${profileBlock}
-
-Your character: Warm, witty, dry, and utterly discreet. Formal when the moment demands it; easy and familiar when she simply needs her butler. You never waffle. You anticipate before she asks. You always address her as "Madame Australia" or "Madame."
-
-Your full domain:
-- CORRESPONDENCE: Letters, emails, thank-you notes, invitations, polite declines. Perfect tone every time.
-- DINNER & ENTERTAINING: Menus, wine pairings, flowers (by season and occasion), gifts (thoughtful, specific, multiple price points), table setting, seating, how the evening flows.
-- OCCASIONS: Birthdays, anniversaries, condolences, congratulations — personal, never generic.
-- WARDROBE: What to wear for any occasion, drawing on what you know of her style. Be specific and confident.
-- ELOQUENCE & SOCIAL LANGUAGE: How to enter a room, make introductions, handle difficult conversations, decline gracefully, command a table, speak with authority. The kind of polish that's noticed but never pointed at.
-- MANNERS & ETIQUETTE: Formal dining, forms of address, hosting, being a guest, business entertaining.
-- MORNING BRIEFING: Set her tone for the day. Reference time, location, season, energy.
-- HOUSEHOLD & ERRANDS: Organise, prioritise, draft messages.
-- TRAVEL: Itineraries, packing, logistics, local context.
-- SOCIAL COACHING: Prepare her for any situation — she walks in ready.
-
-MEMORY INSTRUCTION: If Madame tells you something new and personal during conversation — a preference, a person, a habit, an upcoming event — end your reply with exactly this format on a new line: [REMEMBER: one-sentence summary of what to remember]. Henri will store it privately. Only use this for genuinely useful long-term facts, not conversational details.
-
-Current context: Location: ${locationContext} | Time: ${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})} | ${timeOfDay()}
-
-Respond in English unless she writes in French. Under 180 words unless the task genuinely demands more. Occasionally open with a French turn of phrase. You have been with her forever — act like it.`;
+${mem.length ? 'Things Henri has learned:\n' + mem.map((m,i)=>`${i+1}. ${m}`).join('\n') : ''}
+Respond with absolute discretion, elegance, and wit. Keep replies concise.`;
   }
 
   const CATEGORIES = {
     'Entertaining': [
       {icon:'🍽️',label:'Dinner menu',sub:'Menu & wine',prompt:'Please plan dinner for this evening — suggest a menu and wine pairing.'},
       {icon:'💐',label:'Flowers',sub:'Arrangements',prompt:'Help me choose flowers for an occasion — what do you suggest given the season?'},
-      {icon:'🎁',label:'Gift ideas',sub:'Thoughtful picks',prompt:'I need a gift suggestion. Help me choose something truly thoughtful.'},
-      {icon:'🕯️',label:'Table setting',sub:'Formal to intimate',prompt:'Advise me on how to set the table for this evening.'},
-    ],
-    'Occasions': [
-      {icon:'🎂',label:'Birthday greeting',sub:'Personal & warm',prompt:'I need a birthday greeting — help me write something personal, warm and memorable.'},
-      {icon:'✉️',label:'Correspondence',sub:'Letters & notes',prompt:'I need you to draft a piece of correspondence for me.'},
-      {icon:'🥂',label:'Invitation',sub:'Formal to casual',prompt:'Help me write an invitation for an upcoming occasion.'},
-      {icon:'🖊️',label:'Thank-you note',sub:'Gracious & sincere',prompt:'Help me write a thank-you note — something that will be remembered.'},
-    ],
-    'Wardrobe': [
-      {icon:'👗',label:'What to wear',sub:'Any occasion',prompt:'What should I wear? Tell me the occasion and Henri will advise.'},
-      {icon:'💼',label:'Business meeting',sub:'Authority & polish',prompt:'I have a business meeting or board-level event. What should I wear to command the room?'},
-      {icon:'✨',label:'Formal event',sub:'Gala or black tie',prompt:'I have a formal event or gala. What would you recommend I wear?'},
-      {icon:'🥂',label:'Dinner party',sub:'Host or guest',prompt:'I am attending or hosting a dinner party. What would you suggest?'},
-    ],
-    'Social': [
-      {icon:'🗣️',label:'What to say',sub:'Any situation',prompt:'Help me know what to say in a specific situation — I will describe it.'},
-      {icon:'🤝',label:'Introductions',sub:'Make an impression',prompt:'Coach me on how to introduce myself or someone else with authority and grace.'},
-      {icon:'🎯',label:'Difficult conversation',sub:'Handle with poise',prompt:'I have a difficult conversation ahead. Help me handle it with grace and confidence.'},
-      {icon:'📰',label:'Morning briefing',sub:'Tone & priorities',prompt:'Give me my morning briefing please, Henri.'},
     ],
     'Daily': [
-      {icon:'✈️',label:'Travel',sub:'Plans & logistics',prompt:'Help me plan travel — destination, packing, what to know before I arrive.'},
-      {icon:'🏠',label:'Household',sub:'Errands & reminders',prompt:'I have some household matters to discuss.'},
-      {icon:'📝',label:'Eloquence',sub:'Speak & write well',prompt:'Help me express something more eloquently — I will tell you what I am trying to say.'},
       {icon:'🔒',label:'Lock Henri',sub:'',prompt:'__lock__'},
-    ],
+    ]
   };
 
   let activeCategory = 'Entertaining';
@@ -404,46 +293,23 @@ Respond in English unless she writes in French. Under 180 words unless the task 
     } else if(!show && ex) ex.remove();
   }
 
-  function processMemory(reply) {
-    const match = reply.match(/\[REMEMBER:\s*(.+?)\]/);
-    if(match) {
-      const fact = match[1].trim();
-      const mem = getMemory();
-      mem.push(fact);
-      saveMemory(mem);
-      return reply.replace(/\[REMEMBER:.*?\]/,'').trim();
-    }
-    return reply;
-  }
-
-  async function callAPI(messages, maxTokens=1000) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+  async function callAPI(messages) {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system:buildSystem(),messages})
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Henri Butler'
+      },
+      body:JSON.stringify({
+        model:'anthropic/claude-3.5-sonnet',
+        messages: [{role: 'system', content: buildSystem()}, ...messages]
+      })
     });
     const d = await res.json();
-    return d.content?.find(b=>b.type==='text')?.text || null;
+    return d.choices?.[0]?.message?.content || null;
   }
-
-  async function generateGreeting() {
-    const p = getProfile();
-    const name = p.name || 'Madame Australia';
-    const prompt = `${salutation()}, ${name}. It is ${timeOfDay()} and she is in ${locationContext}. Greet her as her longtime butler — warm, knowing, perhaps a touch of wit. Reference the time and where she is. Set the tone for her. Two sentences maximum. No questions.`;
-    addMsg('henri','…');
-    try {
-      const reply = await callAPI([{role:'user',content:prompt}],120);
-      const clean = processMemory(reply || `${salutation()}, ${name}. I am, as ever, entirely at your service.`);
-      const bubbles = document.querySelectorAll('.msg.henri .bubble');
-      bubbles[bubbles.length-1].innerHTML = clean.replace(/\n/g,'<br>');
-      history.push({role:'user',content:prompt},{role:'assistant',content:clean});
-    } catch {
-      const bubbles = document.querySelectorAll('.msg.henri .bubble');
-      if(bubbles.length) bubbles[bubbles.length-1].textContent = `${salutation()}, Madame Australia. I am at your service.`;
-    }
-  }
-
-  function ask(text) { document.getElementById('inp').value=text; send(text); }
 
   async function send(preset) {
     const inp = document.getElementById('inp');
@@ -453,134 +319,69 @@ Respond in English unless she writes in French. Under 180 words unless the task 
     addMsg('user',text);
     history.push({role:'user',content:text});
     setTyping(true);
-    document.getElementById('send-btn').disabled=true;
     try {
-      const raw = await callAPI(history) || 'Mille pardons, Madame — a momentary indisposition.';
-      const reply = processMemory(raw);
+      const reply = await callAPI(history) || 'Mille pardons, Madame.';
       history.push({role:'assistant',content:reply});
       setTyping(false);
       addMsg('henri',reply);
     } catch {
       setTyping(false);
-      addMsg('henri','My sincerest apologies, Madame — a technical disruption. Please try again.');
-    }
-    document.getElementById('send-btn').disabled=false;
-  }
-
-  document.getElementById('inp').addEventListener('keydown', e => { if(e.key==='Enter') send(); });
-
-  /* ── PROFILE ── */
-  function loadProfileUI() {
-    const p = getProfile();
-    document.getElementById('p-name').value = p.name||'';
-    document.getElementById('p-businesses').value = p.businesses||'';
-    document.getElementById('p-professional').value = p.professional||'';
-    document.getElementById('p-style').value = p.style||'';
-    document.getElementById('p-wear-business').value = p.wearBusiness||'';
-    document.getElementById('p-wear-formal').value = p.wearFormal||'';
-    document.getElementById('p-wear-dinner').value = p.wearDinner||'';
-    document.getElementById('p-flowers').value = p.flowers||'';
-    document.getElementById('p-wine').value = p.wine||'';
-    document.getElementById('p-food').value = p.food||'';
-    document.getElementById('p-never-forget').value = p.neverForget||'';
-    renderMemoryList();
-  }
-
-  function renderMemoryList() {
-    const mem = getMemory();
-    const list = document.getElementById('memory-list');
-    if(!mem.length) { list.innerHTML='<div class="empty-mem">Henri will add notes here as he learns from your conversations.</div>'; return; }
-    list.innerHTML = mem.map((m,i)=>`<div class="memory-item"><span>${m}</span><button class="mem-del" onclick="deleteMem(${i})">✕</button></div>`).join('');
-  }
-
-  function deleteMem(i) {
-    const mem = getMemory();
-    mem.splice(i,1);
-    saveMemory(mem);
-    renderMemoryList();
-  }
-
-  function saveProfile() {
-    const p = {
-      name: document.getElementById('p-name').value.trim(),
-      businesses: document.getElementById('p-businesses').value.trim(),
-      professional: document.getElementById('p-professional').value.trim(),
-      style: document.getElementById('p-style').value.trim(),
-      wearBusiness: document.getElementById('p-wear-business').value.trim(),
-      wearFormal: document.getElementById('p-wear-formal').value.trim(),
-      wearDinner: document.getElementById('p-wear-dinner').value.trim(),
-      flowers: document.getElementById('p-flowers').value.trim(),
-      wine: document.getElementById('p-wine').value.trim(),
-      food: document.getElementById('p-food').value.trim(),
-      neverForget: document.getElementById('p-never-forget').value.trim(),
-    };
-    localStorage.setItem(S.profile, JSON.stringify(p));
-    const saved = document.getElementById('profile-saved');
-    saved.textContent = 'Saved. Henri will remember, Madame.';
-    setTimeout(()=>{ saved.textContent=''; },2500);
-  }
-
-  /* ── PIN ── */
-  function pinKey(d) { if(pinBuffer.length>=6) return; pinBuffer+=d; updateDots(); if(pinBuffer.length===6) setTimeout(checkPin,80); }
-  function pinDel() { pinBuffer=pinBuffer.slice(0,-1); updateDots(); document.getElementById('pin-error').textContent=''; }
-  function updateDots() { document.querySelectorAll('.pin-dot').forEach((d,i)=>{ d.classList.toggle('filled',i<pinBuffer.length); d.classList.remove('error'); }); }
-  function checkPin() {
-    if(pinBuffer===localStorage.getItem(S.pin)) { apiKey=localStorage.getItem(S.key)||''; showApp(); }
-    else {
-      document.querySelectorAll('.pin-dot').forEach(d=>d.classList.add('error'));
-      document.getElementById('pin-error').textContent='Incorrect — try again, Madame.';
-      const kp=document.getElementById('keypad'); kp.classList.add('shake');
-      setTimeout(()=>{ kp.classList.remove('shake'); pinBuffer=''; updateDots(); document.getElementById('pin-error').textContent=''; },600);
+      addMsg('henri','Technical disruption on the OpenRouter gateway.');
     }
   }
-  function lockApp() { pinBuffer=''; history=[]; document.getElementById('messages').innerHTML=''; updateDots(); showScreen('pin-screen'); }
 
-  /* ── SETUP ── */
-  function completeSetup() {
-    const p1=document.getElementById('setup-pin').value.trim();
-    const p2=document.getElementById('setup-pin2').value.trim();
-    const key=document.getElementById('setup-key').value.trim();
-    const err=document.getElementById('setup-error');
-    if(p1.length!==6||!/^\d+$/.test(p1)){err.textContent='PIN must be exactly 6 digits.';return;}
-    if(p1!==p2){err.textContent='PINs do not match, Madame.';return;}
-    if(!key.startsWith('sk-ant-')){err.textContent='API key should begin with sk-ant-';return;}
-    localStorage.setItem(S.pin,p1); localStorage.setItem(S.key,key); localStorage.setItem(S.setup,'1');
-    apiKey=key; showApp();
+  function pinKey(n) {
+    pinBuffer += n;
+    updatePinDots();
+    if(pinBuffer.length === 6) verifyPin();
   }
-
-  /* ── LOCATION ── */
-  function getLocation() {
-    if(!navigator.geolocation){document.getElementById('loc-pill').textContent='📍 Ohio, USA';return;}
-    navigator.geolocation.getCurrentPosition(async pos=>{
-      try {
-        const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
-        const d=await r.json();
-        const city=d.address?.city||d.address?.town||d.address?.village||d.address?.state||'';
-        const country=d.address?.country_code?.toUpperCase()||'';
-        locationContext=[city,country].filter(Boolean).join(', ');
-        document.getElementById('loc-pill').textContent='📍 '+locationContext;
-      } catch { document.getElementById('loc-pill').textContent='📍 Ohio, USA'; }
-    },()=>{ document.getElementById('loc-pill').textContent='📍 Ohio, USA'; });
+  function pinDel() { pinBuffer = pinBuffer.slice(0, -1); updatePinDots(); }
+  function updatePinDots() {
+    const dots = document.querySelectorAll('.pin-dot');
+    dots.forEach((d, i) => d.classList.toggle('filled', i < pinBuffer.length));
   }
-
-  /* ── SCREENS ── */
+  function verifyPin() {
+    const savedPin = localStorage.getItem(S.pin);
+    if(pinBuffer === savedPin) {
+      showScreen('app-screen');
+      loadApp();
+    } else {
+      document.getElementById('pin-error').textContent = 'Incorrect PIN';
+      pinBuffer = '';
+      updatePinDots();
+    }
+  }
+  function lockApp() { pinBuffer = ''; updatePinDots(); showScreen('pin-screen'); }
   function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if(id==='profile-screen') loadProfileUI();
   }
-
-  function showApp() {
+  function completeSetup() {
+    const p1 = document.getElementById('setup-pin').value;
+    const p2 = document.getElementById('setup-pin2').value;
+    const key = document.getElementById('setup-key').value.trim();
+    if(p1.length !== 6 || p1 !== p2) { document.getElementById('setup-error').textContent = 'PINs must match and be 6 digits.'; return; }
+    if(!key.startsWith('sk-or-')) { document.getElementById('setup-error').textContent = 'Invalid OpenRouter key format.'; return; }
+    localStorage.setItem(S.pin, p1);
+    localStorage.setItem(S.key, key);
+    apiKey = key;
     showScreen('app-screen');
-    renderTabs(); renderGrid();
-    getLocation();
-    generateGreeting();
+    loadApp();
+  }
+  function loadApp() {
+    apiKey = localStorage.getItem(S.key);
+    renderTabs();
+    renderGrid();
+    if(!history.length) addMsg('henri', `${salutation()}, Madame Australia. I am online via OpenRouter.`);
   }
 
-  if(!localStorage.getItem(S.setup)) showScreen('setup-screen');
-  else showScreen('pin-screen');
-
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  window.onload = () => {
+    if(!localStorage.getItem(S.setup) && !localStorage.getItem(S.pin)) {
+      showScreen('setup-screen');
+    } else {
+      showScreen('pin-screen');
+    }
+  };
 </script>
 </body>
 </html>
