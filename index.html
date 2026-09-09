@@ -149,13 +149,10 @@
 <div id="setup-screen" class="screen">
   <div class="setup-crest">H</div>
   <div class="setup-title">Bienvenue, Madame.</div>
-  <div class="setup-sub">Before Henri may serve you, configure your credentials.</div>
+  <div class="setup-sub">Choose a 6-digit PIN to secure Henri.</div>
   <div class="setup-label">Your 6-digit PIN</div>
   <input class="setup-input" id="setup-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Choose a PIN" />
   <input class="setup-input" id="setup-pin2" type="password" inputmode="numeric" maxlength="6" placeholder="Confirm your PIN" />
-  <div class="setup-label" style="margin-top:6px;">OpenRouter API Key</div>
-  <div class="setup-sub" style="font-size:11px;">Get yours at openrouter.ai</div>
-  <input class="setup-input" id="setup-key" type="password" placeholder="sk-or-v1-..." />
   <button class="setup-btn" onclick="completeSetup()">Engage Henri →</button>
   <div class="pin-error" id="setup-error" style="height:auto;margin-top:4px;"></div>
 </div>
@@ -325,13 +322,10 @@ ${mem.length ? 'Things Henri has noted:\n' + mem.map((m,i) => `${i+1}. ${m}`).jo
   }
 
   async function callAPI(messages) {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Henri — Personal Butler'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'google/gemini-pro-1.5',
@@ -421,12 +415,8 @@ ${mem.length ? 'Things Henri has noted:\n' + mem.map((m,i) => `${i+1}. ${m}`).jo
   function completeSetup() {
     const p1 = document.getElementById('setup-pin').value;
     const p2 = document.getElementById('setup-pin2').value;
-    const key = document.getElementById('setup-key').value.trim();
     if(p1.length !== 6 || p1 !== p2) { document.getElementById('setup-error').textContent = 'PINs must match and be 6 digits.'; return; }
-    if(!key.startsWith('sk-or-')) { document.getElementById('setup-error').textContent = 'Invalid OpenRouter key format.'; return; }
     localStorage.setItem(S.pin, p1);
-    localStorage.setItem(S.key, key);
-    apiKey = key;
     showScreen('app-screen');
     loadApp();
   }
