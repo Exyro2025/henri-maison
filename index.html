@@ -303,7 +303,7 @@ Respond with absolute discretion, elegance, and wit. Keep replies concise.`;
         'X-Title': 'Henri Butler'
       },
       body:JSON.stringify({
-        model:'anthropic/claude-3.5-sonnet',
+        model:'google/gemini-pro-1.5',
         messages: [{role: 'system', content: buildSystem()}, ...messages]
       })
     });
