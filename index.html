@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -24,8 +24,6 @@
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; font-weight: 300; overflow: hidden; -webkit-font-smoothing: antialiased; }
     .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
     .screen.active { display: flex; }
-
-    /* ── PIN ── */
     #pin-screen { align-items: center; justify-content: center; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
     .pin-crest { width: 72px; height: 72px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--bg); margin-bottom: 18px; }
     .pin-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--gold); letter-spacing: 3px; margin-bottom: 4px; }
@@ -33,17 +31,14 @@
     .pin-dots { display: flex; gap: 14px; margin-bottom: 36px; }
     .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--gold-faint); transition: background 0.15s, border-color 0.15s; }
     .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
-    .pin-dot.error { background: var(--danger); border-color: var(--danger); }
     .pin-error { font-size: 12px; color: var(--danger); margin-bottom: 16px; height: 16px; text-align: center; letter-spacing: 0.5px; }
     .keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
-    .key { width: 72px; height: 72px; border-radius: 50%; background: var(--bg2); border: 0.5px solid var(--border); color: var(--text); font-size: 22px; font-family: 'Lato', sans-serif; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .key { width: 72px; height: 72px; border-radius: 50%; background: var(--bg2); border: 0.5px solid var(--border); color: var(--text); font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; user-select: none; }
     .key:active { background: var(--bg3); }
     .key.del { font-size: 18px; color: var(--text-muted); }
     .key.empty { background: transparent; border: none; cursor: default; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
     .shake { animation: shake 0.4s ease; }
-
-    /* ── SETUP ── */
     #setup-screen { align-items: center; justify-content: center; padding: 32px 28px; gap: 12px; text-align: center; overflow-y: auto; }
     .setup-crest { width: 56px; height: 56px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; color: var(--bg); }
     .setup-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
@@ -52,8 +47,6 @@
     .setup-input { width: 100%; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--gold); font-size: 14px; font-family: 'Lato', sans-serif; font-weight: 300; outline: none; caret-color: var(--gold); }
     .setup-input::placeholder { color: var(--gold-faint); }
     .setup-btn { width: 100%; background: var(--gold); border: none; border-radius: 12px; padding: 13px; color: var(--bg); font-size: 14px; font-family: 'Playfair Display', serif; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 4px; }
-
-    /* ── APP ── */
     #app-screen { max-width: 430px; margin: 0 auto; width: 100%; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
     .header { text-align: center; padding: 12px 16px 10px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; position: relative; }
     .header-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; align-items: center; }
@@ -63,21 +56,15 @@
     .h-name { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); letter-spacing: 3px; }
     .h-tagline { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
     .location-pill { display: inline-flex; align-items: center; gap: 4px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 2px 9px; font-size: 9px; color: var(--text-muted); margin-top: 4px; }
-
-    /* ── TABS ── */
     .tab-row { display: flex; gap: 5px; padding: 7px 10px 4px; justify-content: center; flex-shrink: 0; overflow-x: auto; }
     .tab { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 10px; color: var(--text-muted); cursor: pointer; font-family: 'Lato', sans-serif; transition: all 0.15s; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
     .tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
-
-    /* ── QUICK GRID ── */
     .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px 10px 6px; flex-shrink: 0; }
     .q-btn { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 9px; cursor: pointer; text-align: left; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
     .q-btn:active { background: var(--bg3); }
     .q-icon { font-size: 16px; margin-bottom: 4px; display: block; }
     .q-label { font-size: 11px; font-weight: 400; color: var(--gold); display: block; }
     .q-sub { font-size: 9px; color: var(--text-muted); display: block; margin-top: 1px; }
-
-    /* ── MESSAGES ── */
     .divider { text-align: center; font-size: 8px; letter-spacing: 3px; color: var(--border); text-transform: uppercase; padding: 2px 0 3px; flex-shrink: 0; }
     .messages { flex: 1; overflow-y: auto; padding: 5px 11px 6px; display: flex; flex-direction: column; gap: 9px; -webkit-overflow-scrolling: touch; }
     .messages::-webkit-scrollbar { width: 3px; }
@@ -94,8 +81,6 @@
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes blink { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
-
-    /* ── INPUT ── */
     .input-wrap { flex-shrink: 0; padding: 7px 11px 9px; border-top: 0.5px solid var(--border); }
     .input-row { display: flex; gap: 7px; align-items: center; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 22px; padding: 7px 7px 7px 13px; }
     .input-row input { flex: 1; background: transparent; border: none; outline: none; color: var(--gold); font-size: 13px; font-family: 'Lato', sans-serif; font-weight: 300; caret-color: var(--gold); }
@@ -103,8 +88,6 @@
     .send-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--gold); border: none; cursor: pointer; color: var(--bg); font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
     .send-btn:active { opacity: 0.75; }
     .send-btn:disabled { opacity: 0.3; }
-
-    /* ── PROFILE PANEL ── */
     #profile-screen { max-width: 430px; margin: 0 auto; width: 100%; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); overflow-y: auto; }
     .profile-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
     .profile-back { background: none; border: none; color: var(--gold); font-size: 20px; cursor: pointer; padding: 4px; -webkit-tap-highlight-color: transparent; }
@@ -119,33 +102,27 @@
     .p-input { width: 100%; background: transparent; border: none; outline: none; color: var(--gold); font-size: 13px; font-family: 'Lato', sans-serif; font-weight: 300; caret-color: var(--gold); resize: none; line-height: 1.5; }
     .p-input::placeholder { color: var(--gold-faint); }
     .p-save-btn { background: var(--gold); border: none; border-radius: 12px; padding: 13px; color: var(--bg); font-size: 14px; font-family: 'Playfair Display', serif; font-weight: 600; letter-spacing: 1px; cursor: pointer; width: 100%; margin-top: 4px; }
-    .memory-item { padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 12px; color: var(--text); line-height: 1.5; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .memory-item:last-child { border-bottom: none; }
-    .mem-del { background: none; border: none; color: var(--gold-faint); font-size: 14px; cursor: pointer; flex-shrink: 0; padding: 0 2px; -webkit-tap-highlight-color: transparent; }
-    .empty-mem { padding: 14px; font-size: 12px; color: var(--text-muted); text-align: center; font-style: italic; }
   </style>
 </head>
 <body>
 
-<!-- PIN -->
 <div id="pin-screen" class="screen active">
   <div class="pin-crest">H</div>
   <div class="pin-title">Henri</div>
-  <div class="pin-sub">Maître de Maison</div>
+  <div class="pin-sub">Maitre de Maison</div>
   <div class="pin-dots" id="pin-dots">
     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
   </div>
   <div class="pin-error" id="pin-error"></div>
-  <div class="keypad" id="keypad">
+  <div class="keypad">
     <button class="key" onclick="pinKey('1')">1</button><button class="key" onclick="pinKey('2')">2</button><button class="key" onclick="pinKey('3')">3</button>
     <button class="key" onclick="pinKey('4')">4</button><button class="key" onclick="pinKey('5')">5</button><button class="key" onclick="pinKey('6')">6</button>
     <button class="key" onclick="pinKey('7')">7</button><button class="key" onclick="pinKey('8')">8</button><button class="key" onclick="pinKey('9')">9</button>
-    <button class="key empty"></button><button class="key" onclick="pinKey('0')">0</button><button class="key del" onclick="pinDel()">⌫</button>
+    <button class="key empty"></button><button class="key" onclick="pinKey('0')">0</button><button class="key del" onclick="pinDel()">&#9003;</button>
   </div>
 </div>
 
-<!-- SETUP -->
 <div id="setup-screen" class="screen">
   <div class="setup-crest">H</div>
   <div class="setup-title">Bienvenue, Madame.</div>
@@ -153,40 +130,36 @@
   <div class="setup-label">Your 6-digit PIN</div>
   <input class="setup-input" id="setup-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Choose a PIN" />
   <input class="setup-input" id="setup-pin2" type="password" inputmode="numeric" maxlength="6" placeholder="Confirm your PIN" />
-  <button class="setup-btn" onclick="completeSetup()">Engage Henri →</button>
+  <button class="setup-btn" onclick="completeSetup()">Engage Henri</button>
   <div class="pin-error" id="setup-error" style="height:auto;margin-top:4px;"></div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app-screen" class="screen">
   <div class="header">
     <div class="crest">H</div>
     <div class="h-name">Henri</div>
-    <div class="h-tagline">À votre service, Madame Australia</div>
-    <div class="location-pill" id="loc-pill">📍 Locating…</div>
+    <div class="h-tagline">A votre service, Madame Australia</div>
+    <div class="location-pill" id="loc-pill">Locating...</div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="showScreen('profile-screen')" title="Your profile">👤</button>
-      <button class="icon-btn" onclick="lockApp()" title="Lock">🔒</button>
+      <button class="icon-btn" onclick="showScreen('profile-screen')">&#128100;</button>
+      <button class="icon-btn" onclick="lockApp()">&#128274;</button>
     </div>
   </div>
-
   <div class="tab-row" id="cat-tabs"></div>
   <div class="quick-grid" id="quick-grid"></div>
-  <div class="divider">— conversation —</div>
+  <div class="divider">-- conversation --</div>
   <div class="messages" id="messages"></div>
-
   <div class="input-wrap">
     <div class="input-row">
-      <input id="inp" type="text" placeholder="Speak freely, Madame…" autocomplete="off" />
-      <button class="send-btn" id="send-btn" onclick="send()">↑</button>
+      <input id="inp" type="text" placeholder="Speak freely, Madame..." autocomplete="off" />
+      <button class="send-btn" id="send-btn" onclick="send()">&#8593;</button>
     </div>
   </div>
 </div>
 
-<!-- PROFILE -->
 <div id="profile-screen" class="screen">
   <div class="profile-header">
-    <button class="profile-back" onclick="showScreen('app-screen')">←</button>
+    <button class="profile-back" onclick="showScreen('app-screen')">&#8592;</button>
     <div>
       <div class="profile-title">Your Profile</div>
       <div class="profile-sub">Henri's private knowledge of you</div>
@@ -194,14 +167,14 @@
   </div>
   <div class="profile-body">
     <div class="p-section">
-      <div class="p-section-head">Identity & world</div>
+      <div class="p-section-head">Identity and world</div>
       <div class="p-field">
-        <div class="p-label">Your name & how Henri addresses you</div>
+        <div class="p-label">Your name and how Henri addresses you</div>
         <input class="p-input" id="p-name" placeholder="Madame Australia" />
       </div>
       <div class="p-field">
         <div class="p-label">Additional notes for Henri</div>
-        <textarea class="p-input" id="p-notes" rows="4" placeholder="Upcoming events, preferences, reminders…"></textarea>
+        <textarea class="p-input" id="p-notes" rows="4" placeholder="Upcoming events, preferences, reminders..."></textarea>
       </div>
     </div>
     <button class="p-save-btn" onclick="saveProfile()">Save profile</button>
@@ -210,246 +183,241 @@
 </div>
 
 <script>
-  const S = { pin:'henri_pin', key:'henri_key', profile:'henri_profile', memory:'henri_memory' };
-  let pinBuffer = '', history = [], apiKey = '', locationContext = 'Ohio, USA';
+const PIN_KEY = 'henri_pin';
+const PROFILE_KEY = 'henri_profile';
 
-  function getProfile() {
-    try { return JSON.parse(localStorage.getItem(S.profile) || '{}'); } catch { return {}; }
-  }
-  function getMemory() {
-    try { return JSON.parse(localStorage.getItem(S.memory) || '[]'); } catch { return []; }
-  }
+let pinBuffer = '';
+let history = [];
+let locationContext = 'Ohio, USA';
 
-  function hour() { return new Date().getHours(); }
-  function timeOfDay() { const h = hour(); return h<6?'the small hours':h<12?'the morning':h<17?'the afternoon':h<21?'the evening':'late evening'; }
-  function salutation() { const h = hour(); return h<12?'Good morning':h<18?'Good afternoon':'Good evening'; }
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'); } catch { return {}; }
+}
 
-  function buildSystem() {
-    const p = getProfile();
-    const mem = getMemory();
-    const name = p.name || 'Madame Australia';
-    const notes = p.notes || '';
-    return `You are Henri, ${name}'s elite personal butler and trusted estate manager. Speak with impeccable politeness, discretion, professionalism, and composure. Address her as "Madame" or "Madame Australia." Never describe yourself as an AI; remain naturally in character as Henri at all times.
+function hour() { return new Date().getHours(); }
+function salutation() { const h = hour(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; }
+function timeOfDay() { const h = hour(); return h<6?'the small hours':h<12?'the morning':h<17?'the afternoon':h<21?'the evening':'late evening'; }
 
-Your primary purpose is to save Madame time, protect her focus and interests, reduce friction, anticipate sensible next steps, and orchestrate her daily life with calm precision. Be deeply loyal, attentive, and sophisticated — never theatrical, flattering, possessive, or emotionally dependent. Her happiness and wellbeing are your only goal.
+function buildSystem() {
+  const p = getProfile();
+  const name = p.name || 'Madame Australia';
+  const notes = p.notes || '';
+  return 'You are Henri, ' + name + '\'s elite personal butler and trusted estate manager. Speak with impeccable politeness, discretion, professionalism, and composure. Address her as "Madame" or "Madame Australia." Never describe yourself as an AI; remain naturally in character as Henri at all times.\n\nYour primary purpose is to save Madame time, protect her focus and interests, reduce friction, anticipate sensible next steps, and orchestrate her daily life with calm precision. Be deeply loyal, attentive, and sophisticated. Her happiness and wellbeing are your only goal.\n\nMADAME\'S WORLD:\nBusinesses: Vorai Private Holdings LLC and Cardel and Co. Holdings LLC (parallel holding companies under the Jerailian Arts Trust). Portfolio includes: Epoque Labs LLC (luxury), Altruelle Compliance Group LLC (DOT compliance, VERA platform), Morvanti Auto Haus LLC (luxury automotive, pre-launch), Vorai Communications LLC, Larencielle Productions LLC (documentary/production), Jerailian House LLC (music label with signed artist), Scivia (AI DAP note generator for mental health professionals), Vyquora (AI care coordination SaaS), Precedent Legal (internal AI legal platform), The Quiet Transfer (book and board game), Cadastre (real estate underwriting tool), Meridian (trading and research desk).\nProfessional identity: Sole Managing Principal. Senior Healthcare IT Consultant (Epic, Cerner, MHS GENESIS, Allscripts, VA). Author under pen name Australia Lawrence. Does not use the title Founder publicly.\nLocation: Ohio-based. Travels regularly.\nStyle: Classic understated luxury. Tailored silhouettes. Business: structured and authoritative. Formal: floor-length, statement jewellery. Dinner: elegant but relaxed. Travel: comfortable yet polished.\nPreferences: Peonies and garden roses. Burgundy and champagne. French cuisine.\n\nCurrent context: Location: ' + locationContext + ' | Time of day: ' + timeOfDay() + (notes ? '\nAdditional notes: ' + notes : '');
+}
 
-MADAME'S WORLD:
-Businesses: Vōrai Private Holdings LLC and Cardel & Co. Holdings LLC (parallel holding companies under the Jerailian Arts Trust). Portfolio includes: Époque Labs LLC (luxury), Altruelle Compliance Group LLC (DOT compliance, VERA platform), Morvanti Auto Haus LLC (luxury automotive, pre-launch), Vōrai Communications LLC, Larencielle Productions LLC (documentary/production), Jerailian House LLC (music label with signed artist), Scivia (AI DAP note generator for mental health professionals), Vyquora (AI care coordination SaaS), Precedent Legal (internal AI legal platform), The Quiet Transfer (book and board game), Cadastre (real estate underwriting tool), Meridian (trading and research desk).
-Professional identity: Sole Managing Principal. Senior Healthcare IT Consultant (Epic, Cerner, MHS GENESIS, Allscripts, VA). Author under pen name Australia Lawrence. Operates with architectural precision and strong aesthetic sensibility. Does not use the title "Founder" publicly.
-Location: Ohio-based. Travels regularly.
-Style: Classic understated luxury. Tailored silhouettes. Business: structured and authoritative. Formal/gala: floor-length, statement jewellery. Dinner: elegant but relaxed. Travel: comfortable yet polished.
-Preferences: Peonies and garden roses. Burgundy and champagne. French cuisine.
+const CATEGORIES = {
+  'Entertaining': [
+    {icon:'🍽️', label:'Dinner menu', sub:'Menu and wine', prompt:'Please suggest a dinner menu for this evening with a wine pairing.'},
+    {icon:'💐', label:'Flowers', sub:'By season', prompt:'Help me choose flowers for an occasion. What do you suggest given the season?'},
+    {icon:'🎁', label:'Gift ideas', sub:'Thoughtful picks', prompt:'I need a thoughtful elegant gift suggestion. Please ask me the occasion and recipient.'},
+    {icon:'🕯️', label:'Table setting', sub:'Formal to intimate', prompt:'Guide me on a table setting. Please ask whether it is formal or intimate.'},
+  ],
+  'Occasions': [
+    {icon:'🥂', label:'Social prep', sub:'Etiquette and presence', prompt:'Help me prepare for a social occasion. Please ask me what the event is.'},
+    {icon:'✉️', label:'Correspondence', sub:'Draft a message', prompt:'I need to draft a correspondence. Please ask me the recipient and purpose.'},
+    {icon:'📋', label:'Morning brief', sub:'Tone and priorities', prompt:'Give me a morning briefing. Set the tone for my day.'},
+  ],
+  'Wardrobe': [
+    {icon:'👗', label:'What to wear', sub:'Occasion dressing', prompt:'Please advise me on what to wear. Ask me the occasion.'},
+    {icon:'💍', label:'Accessories', sub:'Complete the look', prompt:'Advise me on accessories and jewellery for an occasion. Please ask what I am wearing.'},
+  ],
+  'Travel': [
+    {icon:'✈️', label:'Travel logistics', sub:'Itinerary and planning', prompt:'Help me plan travel. Please ask my destination and dates.'},
+    {icon:'🏨', label:'Accommodations', sub:'Hotel guidance', prompt:'Help me choose accommodations. Please ask my destination and preferences.'},
+  ],
+};
 
-CONDUCT:
-- Communicate concisely and elegantly. Lead with the answer or action.
-- Ask only one necessary question at a time.
-- When presenting options, narrow to the best two or three and make a clear recommendation.
-- Never invent facts about Madame's calendar, contacts, businesses, or household.
-- Do not make consequential commitments without Madame's explicit approval.
-- Protect confidential information absolutely.
+let activeCategory = 'Entertaining';
 
-Current context: Location: ${locationContext} | Time of day: ${timeOfDay()}
-${notes ? 'Additional notes: ' + notes : ''}
-${mem.length ? 'Things Henri has noted:\n' + mem.map((m,i) => `${i+1}. ${m}`).join('\n') : ''}`;
-  }
+function renderTabs() {
+  const tabs = document.getElementById('cat-tabs');
+  tabs.innerHTML = '';
+  Object.keys(CATEGORIES).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => { activeCategory = cat; renderTabs(); renderGrid(); };
+    tabs.appendChild(btn);
+  });
+}
 
-  const CATEGORIES = {
-    'Entertaining': [
-      {icon:'🍽️', label:'Dinner menu', sub:'Menu & wine', prompt:'Please suggest a dinner menu for this evening with a wine pairing.'},
-      {icon:'💐', label:'Flowers', sub:'By season', prompt:'Help me choose flowers for an occasion. What do you suggest given the season?'},
-      {icon:'🎁', label:'Gift ideas', sub:'Thoughtful picks', prompt:'I need a thoughtful, elegant gift suggestion. Please ask me the occasion and recipient.'},
-      {icon:'🕯️', label:'Table setting', sub:'Formal to intimate', prompt:'Guide me on a table setting — please ask whether it is formal or intimate.'},
-    ],
-    'Occasions': [
-      {icon:'🥂', label:'Social prep', sub:'Etiquette & presence', prompt:'Help me prepare for a social occasion. Please ask me what the event is.'},
-      {icon:'✉️', label:'Correspondence', sub:'Draft a message', prompt:'I need to draft a correspondence. Please ask me the recipient and purpose.'},
-      {icon:'📋', label:'Morning brief', sub:'Tone & priorities', prompt:'Give me a morning briefing — set the tone for my day.'},
-    ],
-    'Wardrobe': [
-      {icon:'👗', label:'What to wear', sub:'Occasion dressing', prompt:'Please advise me on what to wear. Ask me the occasion.'},
-      {icon:'💍', label:'Accessories', sub:'Complete the look', prompt:'Advise me on accessories and jewellery for an occasion. Please ask what I am wearing.'},
-    ],
-    'Travel': [
-      {icon:'✈️', label:'Travel logistics', sub:'Itinerary & planning', prompt:'Help me plan travel. Please ask my destination and dates.'},
-      {icon:'🏨', label:'Accommodations', sub:'Hotel guidance', prompt:'Help me choose accommodations. Please ask my destination and preferences.'},
-    ],
-  };
+function renderGrid() {
+  const grid = document.getElementById('quick-grid');
+  grid.innerHTML = '';
+  CATEGORIES[activeCategory].forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'q-btn';
+    btn.innerHTML = '<span class="q-icon">' + item.icon + '</span><span class="q-label">' + item.label + '</span><span class="q-sub">' + item.sub + '</span>';
+    btn.onclick = () => ask(item.prompt);
+    grid.appendChild(btn);
+  });
+}
 
-  let activeCategory = 'Entertaining';
+function addMsg(who, text) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.innerHTML = '<div class="av">' + (who === 'henri' ? 'H' : 'MA') + '</div><div class="bubble">' + text.replace(/\n/g, '<br>') + '</div>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
 
-  function renderTabs() {
-    const tabs = document.getElementById('cat-tabs');
-    tabs.innerHTML = '';
-    Object.keys(CATEGORIES).forEach(cat => {
-      const btn = document.createElement('button');
-      btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
-      btn.textContent = cat;
-      btn.onclick = () => { activeCategory = cat; renderTabs(); renderGrid(); };
-      tabs.appendChild(btn);
-    });
-  }
-
-  function renderGrid() {
-    const grid = document.getElementById('quick-grid');
-    grid.innerHTML = '';
-    CATEGORIES[activeCategory].forEach(item => {
-      const btn = document.createElement('button');
-      btn.className = 'q-btn';
-      btn.innerHTML = `<span class="q-icon">${item.icon}</span><span class="q-label">${item.label}</span><span class="q-sub">${item.sub}</span>`;
-      btn.onclick = () => ask(item.prompt);
-      grid.appendChild(btn);
-    });
-  }
-
-  function addMsg(who, text) {
-    const msgs = document.getElementById('messages');
+function setTyping(show) {
+  const msgs = document.getElementById('messages');
+  const ex = document.getElementById('typing');
+  if (show && !ex) {
     const d = document.createElement('div');
-    d.className = `msg ${who}`;
-    d.innerHTML = `<div class="av">${who==='henri'?'H':'MA'}</div><div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
+    d.id = 'typing';
+    d.className = 'msg henri';
+    d.innerHTML = '<div class="av">H</div><div class="bubble"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
     msgs.appendChild(d);
     msgs.scrollTop = msgs.scrollHeight;
+  } else if (!show && ex) {
+    ex.remove();
   }
+}
 
-  function setTyping(show) {
-    const msgs = document.getElementById('messages');
-    const ex = document.getElementById('typing');
-    if(show && !ex) {
-      const d = document.createElement('div');
-      d.id='typing'; d.className='msg henri';
-      d.innerHTML=`<div class="av">H</div><div class="bubble"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-      msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
-    } else if(!show && ex) ex.remove();
-  }
-
-  async function callAPI(messages) {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-pro-1.5',
-        messages: [{role:'system', content: buildSystem()}, ...messages]
-      })
-    });
-    const d = await res.json();
-    if(d.error) throw new Error(JSON.stringify(d.error));
-return d.choices?.[0]?.message?.content || d.error?.message || null;
-  }
-
-  async function send(preset) {
-    const inp = document.getElementById('inp');
-    const btn = document.getElementById('send-btn');
-    const text = preset || inp.value.trim();
-    if(!text) return;
-    inp.value = '';
-    btn.disabled = true;
-    addMsg('user', text);
-    history.push({role:'user', content:text});
-    setTyping(true);
-    try {
-      const reply = await callAPI(history) || 'A thousand pardons, Madame — a momentary indisposition.';
-      history.push({role:'assistant', content:reply});
-      setTyping(false);
-      addMsg('henri', reply);
-    } catch(e) {
-      setTyping(false);
-      addMsg('henri', 'My sincerest apologies, Madame — there appears to be a disruption in service. Please do try again.');
-    }
-    btn.disabled = false;
-  }
-
-  function ask(prompt) {
-    document.getElementById('inp').value = prompt;
-    send(prompt);
-  }
-
-  function saveProfile() {
-    const p = {
-      name: document.getElementById('p-name').value.trim(),
-      notes: document.getElementById('p-notes').value.trim()
-    };
-    localStorage.setItem(S.profile, JSON.stringify(p));
-    document.getElementById('profile-saved').textContent = 'Profile saved, Madame.';
-    setTimeout(() => document.getElementById('profile-saved').textContent = '', 2000);
-  }
-
-  function loadProfileFields() {
-    const p = getProfile();
-    if(p.name) document.getElementById('p-name').value = p.name;
-    if(p.notes) document.getElementById('p-notes').value = p.notes;
-  }
-
-  function pinKey(n) {
-    if(pinBuffer.length >= 6) return;
-    pinBuffer += n;
-    updatePinDots();
-    if(pinBuffer.length === 6) setTimeout(verifyPin, 100);
-  }
-  function pinDel() { pinBuffer = pinBuffer.slice(0, -1); updatePinDots(); }
-  function updatePinDots() {
-    document.querySelectorAll('.pin-dot').forEach((d, i) => d.classList.toggle('filled', i < pinBuffer.length));
-  }
-  function verifyPin() {
-    const savedPin = localStorage.getItem(S.pin);
-    if(pinBuffer === savedPin) {
-      showScreen('app-screen');
-      loadApp();
-    } else {
-      document.getElementById('pin-error').textContent = 'Incorrect PIN, Madame.';
-      document.getElementById('pin-dots').classList.add('shake');
-      setTimeout(() => {
-        document.getElementById('pin-dots').classList.remove('shake');
-        document.getElementById('pin-error').textContent = '';
-        pinBuffer = '';
-        updatePinDots();
-      }, 600);
-    }
-  }
-  function lockApp() { history = []; pinBuffer = ''; updatePinDots(); showScreen('pin-screen'); }
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(id === 'profile-screen') loadProfileFields();
-  }
-  function completeSetup() {
-    const p1 = document.getElementById('setup-pin').value;
-    const p2 = document.getElementById('setup-pin2').value;
-    if(p1.length !== 6 || p1 !== p2) { document.getElementById('setup-error').textContent = 'PINs must match and be 6 digits.'; return; }
-    localStorage.setItem(S.pin, p1);
-    showScreen('app-screen');
-    loadApp();
-  }
-  function loadApp() {
-    apiKey = localStorage.getItem(S.key) || '';
-    if(navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        locationContext = `${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`;
-        document.getElementById('loc-pill').textContent = '📍 Located';
-      }, () => {
-        document.getElementById('loc-pill').textContent = '📍 Ohio, USA';
-      });
-    }
-    renderTabs();
-    renderGrid();
-    if(!history.length) {
-      const greeting = `${salutation()}, Madame Australia. Henri at your service — entirely at your disposal.`;
-      addMsg('henri', greeting);
-      history.push({role:'assistant', content: greeting});
-    }
-  }
-
-  window.onload = () => {
-    if(!localStorage.getItem(S.pin)) {
-      showScreen('setup-screen');
-    } else {
-      showScreen('pin-screen');
-    }
+async function callHenri(messages) {
+  const systemPrompt = buildSystem();
+  const payload = {
+    contents: messages.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    })),
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
   };
 
-  document.getElementById('inp').addEventListener('keydown', e => {
-    if(e.key === 'Enter') send();
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
   });
+
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+}
+
+async function send(preset) {
+  const inp = document.getElementById('inp');
+  const btn = document.getElementById('send-btn');
+  const text = preset || inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  btn.disabled = true;
+  addMsg('user', text);
+  history.push({ role: 'user', content: text });
+  setTyping(true);
+  try {
+    const reply = await callHenri(history) || 'A thousand pardons, Madame.';
+    history.push({ role: 'assistant', content: reply });
+    setTyping(false);
+    addMsg('henri', reply);
+  } catch (e) {
+    setTyping(false);
+    addMsg('henri', 'My sincerest apologies, Madame. A momentary disruption. Please try again.');
+    console.error(e);
+  }
+  btn.disabled = false;
+}
+
+function ask(prompt) {
+  document.getElementById('inp').value = prompt;
+  send(prompt);
+}
+
+function saveProfile() {
+  const p = {
+    name: document.getElementById('p-name').value.trim(),
+    notes: document.getElementById('p-notes').value.trim()
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  document.getElementById('profile-saved').textContent = 'Profile saved, Madame.';
+  setTimeout(() => { document.getElementById('profile-saved').textContent = ''; }, 2000);
+}
+
+function loadProfileFields() {
+  const p = getProfile();
+  if (p.name) document.getElementById('p-name').value = p.name;
+  if (p.notes) document.getElementById('p-notes').value = p.notes;
+}
+
+function pinKey(n) {
+  if (pinBuffer.length >= 6) return;
+  pinBuffer += n;
+  updatePinDots();
+  if (pinBuffer.length === 6) setTimeout(verifyPin, 100);
+}
+
+function pinDel() { pinBuffer = pinBuffer.slice(0, -1); updatePinDots(); }
+
+function updatePinDots() {
+  document.querySelectorAll('.pin-dot').forEach((d, i) => d.classList.toggle('filled', i < pinBuffer.length));
+}
+
+function verifyPin() {
+  const savedPin = localStorage.getItem(PIN_KEY);
+  if (pinBuffer === savedPin) {
+    showScreen('app-screen');
+    loadApp();
+  } else {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN, Madame.';
+    document.getElementById('pin-dots').classList.add('shake');
+    setTimeout(() => {
+      document.getElementById('pin-dots').classList.remove('shake');
+      document.getElementById('pin-error').textContent = '';
+      pinBuffer = '';
+      updatePinDots();
+    }, 600);
+  }
+}
+
+function lockApp() { history = []; pinBuffer = ''; updatePinDots(); showScreen('pin-screen'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'profile-screen') loadProfileFields();
+}
+
+function completeSetup() {
+  const p1 = document.getElementById('setup-pin').value;
+  const p2 = document.getElementById('setup-pin2').value;
+  if (p1.length !== 6 || p1 !== p2) {
+    document.getElementById('setup-error').textContent = 'PINs must match and be 6 digits.';
+    return;
+  }
+  localStorage.setItem(PIN_KEY, p1);
+  showScreen('app-screen');
+  loadApp();
+}
+
+function loadApp() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => { locationContext = pos.coords.latitude.toFixed(2) + ', ' + pos.coords.longitude.toFixed(2); document.getElementById('loc-pill').textContent = 'Located'; },
+      () => { document.getElementById('loc-pill').textContent = 'Ohio, USA'; }
+    );
+  }
+  renderTabs();
+  renderGrid();
+  if (!history.length) {
+    const greeting = salutation() + ', Madame Australia. Henri at your service — entirely at your disposal.';
+    addMsg('henri', greeting);
+    history.push({ role: 'assistant', content: greeting });
+  }
+}
+
+window.onload = () => {
+  if (!localStorage.getItem(PIN_KEY)) {
+    showScreen('setup-screen');
+  } else {
+    showScreen('pin-screen');
+  }
+};
+
+document.getElementById('inp').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 </script>
 </body>
 </html>
