@@ -1,10 +1,18 @@
 export default async function handler(req, res) {
   try {
-    const body = await new Promise((resolve) => {
-      let data = '';
-      req.on('data', chunk => data += chunk);
-      req.on('end', () => resolve(JSON.parse(data)));
-    });
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const body = JSON.parse(Buffer.concat(chunks).toString());
+
+    // Convert Gemini format to OpenAI format for OpenRouter
+    const systemText = body.systemInstruction?.parts?.[0]?.text || '';
+    const messages = [
+      ...(systemText ? [{ role: 'system', content: systemText }] : []),
+      ...(body.contents || []).map(m => ({
+        role: m.role === 'model' ? 'assistant' : 'user',
+        content: m.parts?.[0]?.text || ''
+      }))
+    ];
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -14,12 +22,17 @@ export default async function handler(req, res) {
         'HTTP-Referer': 'https://henri-maison.vercel.app',
         'X-Title': 'Henri Personal Butler'
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ model: 'google/gemini-2.5-flash', messages })
     });
 
     const data = await response.json();
-    res.status(200).json(data);
-  } catch(e) {
+    const text = data.choices?.[0]?.message?.content || '';
+
+    // Return in Gemini format so index.html can parse it
+    res.status(200).json({
+      candidates: [{ content: { parts: [{ text }] } }]
+    });
+  } catch (e) {
     res.status(500).json({ error: e.message });
   }
 }
