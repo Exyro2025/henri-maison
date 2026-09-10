@@ -2,40 +2,20 @@ export default async function handler(req, res) {
   try {
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
-    const { action, title, startTime, notes } = JSON.parse(Buffer.concat(chunks).toString());
+    const body = JSON.parse(Buffer.concat(chunks).toString());
+    const action = body.action;
     const apiKey = process.env.CAL_API_KEY;
-    const baseUrl = 'https://api.cal.com/v1';
 
-    if (action === 'get_bookings') {
-      const response = await fetch(`${baseUrl}/bookings?apiKey=${apiKey}&upcoming=true`, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await response.json();
-      res.status(200).json(data);
+    const response = await fetch(`https://api.cal.com/v1/bookings?apiKey=${apiKey}`, {
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-    } else if (action === 'create_booking') {
-      const response = await fetch(`${baseUrl}/bookings?apiKey=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          eventTypeId: 840721,
-          start: startTime,
-          responses: {
-            name: 'Madame Australia',
-            email: 'lelaabrams@gmail.com'
-          },
-          title: title,
-          description: notes || '',
-          timeZone: 'America/New_York'
-        })
-      });
-      const data = await response.json();
-      res.status(200).json(data);
+    const text = await response.text();
+    res.setHeader('Content-Type', 'application/json');
+    res.end(text);
 
-    } else {
-      res.status(400).json({ error: 'Unknown action' });
-    }
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: e.message }));
   }
 }
