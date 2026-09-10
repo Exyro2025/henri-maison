@@ -299,6 +299,12 @@ async function callHenri(messages) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
 }
 
+  function isBookingRequest(text) {
+  const keywords = ['add', 'schedule', 'book', 'create', 'put on', 'set up', 'remind me', 'add to calendar', 'block'];
+  const lower = text.toLowerCase();
+  return keywords.some(k => lower.includes(k));
+}
+
 function isCalendarQuestion(text) {
   const keywords = ['calendar', 'schedule', 'appointment', 'booking', 'meeting', 'what do i have', 'what\'s on', 'whats on', 'today', 'tomorrow', 'this week', 'upcoming', 'agenda'];
   const lower = text.toLowerCase();
@@ -338,7 +344,10 @@ async function send(preset) {
   try {
     let userMessage = text;
 
-    if (isCalendarQuestion(text)) {
+    if (isBookingRequest(text) && isCalendarQuestion(text)) {
+  userMessage = text + '\n\n[BOOKING REQUEST: Madame wants to add an appointment. Extract the title, date, time and call /api/calendar with action "create_booking", startTime in ISO format, and title. Confirm with Madame once done.]';
+} else if (isCalendarQuestion(text)) {
+      
       const calData = await fetchCalendar();
       const formatted = formatCalendarData(calData);
       if (formatted === 'CALENDAR_EMPTY') {
