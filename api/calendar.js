@@ -4,12 +4,12 @@ export default async function handler(req, res) {
     for await (const chunk of req) chunks.push(chunk);
     const { action, eventData } = JSON.parse(Buffer.concat(chunks).toString());
     const apiKey = process.env.CAL_API_KEY;
-    const baseUrl = 'https://api.cal.com/v1';
+    const baseUrl = 'https://api.cal.com/v2';
 
     if (action === 'get_bookings') {
-      const response = await fetch(`${baseUrl}/bookings?apiKey=${apiKey}`, {
+      const response = await fetch(`${baseUrl}/bookings?apiKey=${apiKey}&status=upcoming`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'cal-api-version': '2024-08-13' }
       });
       const data = await response.json();
       res.status(200).json(data);
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     } else if (action === 'create_booking' && eventData) {
       const response = await fetch(`${baseUrl}/bookings?apiKey=${apiKey}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'cal-api-version': '2024-08-13' },
         body: JSON.stringify(eventData)
       });
       const data = await response.json();
