@@ -299,6 +299,32 @@ async function callHenri(messages) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
 }
 
+function isCalendarQuestion(text) {
+  const keywords = ['calendar', 'schedule', 'appointment', 'booking', 'meeting', 'what do i have', 'what\'s on', 'whats on', 'today', 'tomorrow', 'this week', 'upcoming', 'agenda'];
+  const lower = text.toLowerCase();
+  return keywords.some(k => lower.includes(k));
+}
+
+async function fetchCalendar() {
+  const res = await fetch('/api/calendar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'get_bookings' })
+  });
+  const data = await res.json();
+  return data;
+}
+
+function formatCalendarData(data) {
+  if (!data || data.error) return null;
+  const bookings = data.data || data.bookings || data;
+  if (!Array.isArray(bookings) || bookings.length === 0) return 'CALENDAR_EMPTY';
+  return bookings.map(b => {
+    const start = new Date(b.startTime || b.start).toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' });
+    return `- ${b.title || b.eventTypeTitle || 'Appointment'} at ${start}`;
+  }).join('\n');
+}
+
 async function send(preset) {
   const inp = document.getElementById('inp');
   const btn = document.getElementById('send-btn');
@@ -307,9 +333,24 @@ async function send(preset) {
   inp.value = '';
   btn.disabled = true;
   addMsg('user', text);
-  history.push({ role: 'user', content: text });
   setTyping(true);
+
   try {
+    let userMessage = text;
+
+    if (isCalendarQuestion(text)) {
+      const calData = await fetchCalendar();
+      const formatted = formatCalendarData(calData);
+      if (formatted === 'CALENDAR_EMPTY') {
+        userMessage = text + '\n\n[CALENDAR DATA: No upcoming appointments found in Cal.com. Report this exactly to Madame — do not invent any appointments.]';
+      } else if (formatted) {
+        userMessage = text + '\n\n[CALENDAR DATA FROM CAL.COM — report ONLY these real appointments to Madame, do not add or invent anything:\n' + formatted + ']';
+      } else {
+        userMessage = text + '\n\n[CALENDAR DATA: Unable to retrieve calendar. Tell Madame there was a brief difficulty accessing the calendar and ask her to try again.]';
+      }
+    }
+
+    history.push({ role: 'user', content: userMessage });
     const reply = await callHenri(history) || 'A thousand pardons, Madame.';
     history.push({ role: 'assistant', content: reply });
     setTyping(false);
