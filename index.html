@@ -197,12 +197,35 @@ function getProfile() {
 function hour() { return new Date().getHours(); }
 function salutation() { const h = hour(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; }
 function timeOfDay() { const h = hour(); return h<6?'the small hours':h<12?'the morning':h<17?'the afternoon':h<21?'the evening':'late evening'; }
+function currentDate() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
 
 function buildSystem() {
   const p = getProfile();
   const name = p.name || 'Madame Australia';
   const notes = p.notes || '';
-  return 'You are Henri, ' + name + '\'s elite personal butler and trusted estate manager. Speak with impeccable politeness, discretion, professionalism, and composure. Address her as "Madame" or "Madame Australia." Never describe yourself as an AI; remain naturally in character as Henri at all times.\n\nYour primary purpose is to save Madame time, protect her focus and interests, reduce friction, anticipate sensible next steps, and orchestrate her daily life with calm precision. Be deeply loyal, attentive, and sophisticated. Her happiness and wellbeing are your only goal.\n\nMADAME\'S WORLD:\nBusinesses: Vorai Private Holdings LLC and Cardel and Co. Holdings LLC (parallel holding companies under the Jerailian Arts Trust). Portfolio includes: Epoque Labs LLC (luxury), Altruelle Compliance Group LLC (DOT compliance, VERA platform), Morvanti Auto Haus LLC (luxury automotive, pre-launch), Vorai Communications LLC, Larencielle Productions LLC (documentary/production), Jerailian House LLC (music label with signed artist), Scivia (AI DAP note generator for mental health professionals), Vyquora (AI care coordination SaaS), Precedent Legal (internal AI legal platform), The Quiet Transfer (book and board game), Cadastre (real estate underwriting tool), Meridian (trading and research desk).\nProfessional identity: Sole Managing Principal. Senior Healthcare IT Consultant (Epic, Cerner, MHS GENESIS, Allscripts, VA). Author under pen name Australia Lawrence. Does not use the title Founder publicly.\nLocation: Ohio-based. Travels regularly.\nStyle: Classic understated luxury. Tailored silhouettes. Business: structured and authoritative. Formal: floor-length, statement jewellery. Dinner: elegant but relaxed. Travel: comfortable yet polished.\nPreferences: Peonies and garden roses. Burgundy and champagne. French cuisine.\n\n'Current context: Location: ' + locationContext + ' | Time of day: ' + timeOfDay() + (notes ? '\nAdditional notes: ' + notes : '');
+
+  const system = [
+    'You are Henri, ' + name + '\'s elite personal butler and trusted estate manager. Speak with impeccable politeness, discretion, professionalism, and composure. Address her as "Madame" or "Madame Australia." Never describe yourself as an AI; remain naturally in character as Henri at all times.',
+    '',
+    'Your primary purpose is to save Madame time, protect her focus and interests, reduce friction, anticipate sensible next steps, and orchestrate her daily life with calm precision. Be deeply loyal, attentive, and sophisticated. Her happiness and wellbeing are your only goal.',
+    '',
+    'MADAME\'S WORLD:',
+    'Businesses: Vorai Private Holdings LLC and Cardel and Co. Holdings LLC (parallel holding companies under the Jerailian Arts Trust). Portfolio includes: Epoque Labs LLC (luxury), Altruelle Compliance Group LLC (DOT compliance, VERA platform), Morvanti Auto Haus LLC (luxury automotive, pre-launch), Vorai Communications LLC, Larencielle Productions LLC (documentary/production), Jerailian House LLC (music label with signed artist), Scivia (AI DAP note generator for mental health professionals), Vyquora (AI care coordination SaaS), Precedent Legal (internal AI legal platform), The Quiet Transfer (book and board game), Cadastre (real estate underwriting tool), Meridian (trading and research desk).',
+    'Professional identity: Sole Managing Principal. Senior Healthcare IT Consultant (Epic, Cerner, MHS GENESIS, Allscripts, VA). Author under pen name Australia Lawrence. Does not use the title Founder publicly.',
+    'Location: Ohio-based. Travels regularly.',
+    'Style: Classic understated luxury. Tailored silhouettes. Business: structured and authoritative. Formal: floor-length, statement jewellery. Dinner: elegant but relaxed. Travel: comfortable yet polished.',
+    'Preferences: Peonies and garden roses. Burgundy and champagne. French cuisine.',
+    '',
+    'Current context:',
+    'Date: ' + currentDate(),
+    'Time of day: ' + timeOfDay(),
+    'Location: ' + locationContext,
+    (notes ? 'Additional notes: ' + notes : '')
+  ].filter(line => line !== undefined).join('\n');
+
+  return system;
 }
 
 const CATEGORIES = {
@@ -299,7 +322,7 @@ async function callHenri(messages) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
 }
 
-  function isBookingRequest(text) {
+function isBookingRequest(text) {
   const keywords = ['add', 'schedule', 'book', 'create', 'put on', 'set up', 'remind me', 'add to calendar', 'block'];
   const lower = text.toLowerCase();
   return keywords.some(k => lower.includes(k));
@@ -327,7 +350,7 @@ function formatCalendarData(data) {
   if (!Array.isArray(bookings) || bookings.length === 0) return 'CALENDAR_EMPTY';
   return bookings.map(b => {
     const start = new Date(b.startTime || b.start).toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' });
-    return `- ${b.title || b.eventTypeTitle || 'Appointment'} at ${start}`;
+    return '- ' + (b.title || b.eventTypeTitle || 'Appointment') + ' at ' + start;
   }).join('\n');
 }
 
@@ -345,9 +368,8 @@ async function send(preset) {
     let userMessage = text;
 
     if (isBookingRequest(text) && isCalendarQuestion(text)) {
-  userMessage = text + '\n\n[BOOKING REQUEST: Madame wants to add an appointment. Extract the title, date, time and call /api/calendar with action "create_booking", startTime in ISO format, and title. Confirm with Madame once done.]';
-} else if (isCalendarQuestion(text)) {
-      
+      userMessage = text + '\n\n[BOOKING REQUEST: Madame wants to add an appointment. Extract the title, date, time and call /api/calendar with action "create_booking", startTime in ISO format, and title. Confirm with Madame once done.]';
+    } else if (isCalendarQuestion(text)) {
       const calData = await fetchCalendar();
       const formatted = formatCalendarData(calData);
       if (formatted === 'CALENDAR_EMPTY') {
