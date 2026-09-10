@@ -26,8 +26,8 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || '';
-
+    let text = data.choices?.[0]?.message?.content || '';
+text = text.replace(/\[.*?\]/gs, '').replace(/\n\s*\n\s*\n/g, '\n\n').trim();
     // Return in Gemini format so index.html can parse it
     res.status(200).json({
       candidates: [{ content: { parts: [{ text }] } }]
