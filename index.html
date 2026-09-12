@@ -102,6 +102,20 @@
     .p-input { width: 100%; background: transparent; border: none; outline: none; color: var(--gold); font-size: 13px; font-family: 'Lato', sans-serif; font-weight: 300; caret-color: var(--gold); resize: none; line-height: 1.5; }
     .p-input::placeholder { color: var(--gold-faint); }
     .p-save-btn { background: var(--gold); border: none; border-radius: 12px; padding: 13px; color: var(--bg); font-size: 14px; font-family: 'Playfair Display', serif; font-weight: 600; letter-spacing: 1px; cursor: pointer; width: 100%; margin-top: 4px; }
+    #calls-screen { max-width: 430px; margin: 0 auto; width: 100%; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); overflow-y: auto; }
+    .calls-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+    .calls-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); }
+    .calls-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
+    .calls-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .call-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+    .call-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .call-number { font-size: 13px; color: var(--gold); font-weight: 400; }
+    .call-time { font-size: 10px; color: var(--text-muted); }
+    .call-duration { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+    .call-summary { font-size: 12px; color: var(--text); line-height: 1.6; }
+    .call-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 40px 0; }
+    .notif-badge { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); display: none; }
+    .icon-btn-wrap { position: relative; }
   </style>
 </head>
 <body>
@@ -141,6 +155,10 @@
     <div class="h-tagline">A votre service, Madame Australia</div>
     <div class="location-pill" id="loc-pill">Locating...</div>
     <div class="header-actions">
+      <div class="icon-btn-wrap">
+        <button class="icon-btn" onclick="showScreen('calls-screen')">&#128222;</button>
+        <div class="notif-badge" id="notif-badge"></div>
+      </div>
       <button class="icon-btn" onclick="showScreen('profile-screen')">&#128100;</button>
       <button class="icon-btn" onclick="lockApp()">&#128274;</button>
     </div>
@@ -154,6 +172,19 @@
       <input id="inp" type="text" placeholder="Speak freely, Madame..." autocomplete="off" />
       <button class="send-btn" id="send-btn" onclick="send()">&#8593;</button>
     </div>
+  </div>
+</div>
+
+<div id="calls-screen" class="screen">
+  <div class="calls-header">
+    <button class="profile-back" onclick="showScreen('app-screen')">&#8592;</button>
+    <div>
+      <div class="calls-title">Call Log</div>
+      <div class="calls-sub">Messages handled by Henri</div>
+    </div>
+  </div>
+  <div class="calls-body" id="calls-body">
+    <div class="call-empty">No calls on record, Madame.</div>
   </div>
 </div>
 
@@ -451,6 +482,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id === 'profile-screen') loadProfileFields();
+  if (id === 'calls-screen') { loadCallLog(); document.getElementById('notif-badge').style.display = 'none'; }
 }
 
 function completeSetup() {
@@ -465,6 +497,38 @@ function completeSetup() {
   loadApp();
 }
 
+async function loadCallLog() {
+  try {
+    const res = await fetch('/api/call-log');
+    const data = await res.json();
+    const calls = data.calls || [];
+    const body = document.getElementById('calls-body');
+    const badge = document.getElementById('notif-badge');
+
+    if (!calls.length) {
+      body.innerHTML = '<div class="call-empty">No calls on record, Madame.</div>';
+      badge.style.display = 'none';
+      return;
+    }
+
+    badge.style.display = 'block';
+    body.innerHTML = calls.map(c => {
+      const dt = new Date(c.startedAt);
+      const timeStr = dt.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const dur = c.durationSeconds ? Math.floor(c.durationSeconds / 60) + 'm ' + (c.durationSeconds % 60) + 's' : '';
+      const who = c.isMadame ? 'Madame Australia' : (c.callerNumber || 'Unknown caller');
+      const summary = c.summary || 'No summary available.';
+      return '<div class="call-card">' +
+        '<div class="call-card-head"><span class="call-number">' + who + '</span><span class="call-time">' + timeStr + '</span></div>' +
+        (dur ? '<div class="call-duration">Duration: ' + dur + '</div>' : '') +
+        '<div class="call-summary">' + summary + '</div>' +
+        '</div>';
+    }).join('');
+  } catch (e) {
+    console.error('Call log error:', e);
+  }
+}
+
 function loadApp() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -474,6 +538,8 @@ function loadApp() {
   }
   renderTabs();
   renderGrid();
+  loadCallLog();
+  setInterval(loadCallLog, 60000);
   if (!history.length) {
     const greeting = salutation() + ', Madame Australia. Henri at your service — entirely at your disposal.';
     addMsg('henri', greeting);
