@@ -542,14 +542,6 @@ function renderCallCards(calls, saved) {
   }).join('');
 }
 
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('[data-action]');
-  if (!btn) return;
-  const action = btn.getAttribute('data-action');
-  const id = btn.getAttribute('data-id');
-  if (action && id) callAction(action, id);
-});
-
 async function callAction(action, id) {
   try {
     await fetch('/api/call-actions', {
@@ -575,7 +567,7 @@ async function loadCallLog() {
       const data = await res.json();
       renderCallCards(data.calls || [], true);
     } else {
-      const res = await fetch('/api/call-log');
+      const res = await fetch('/api/call-log?t=' + Date.now());
       const data = await res.json();
       const calls = data.calls || [];
       if (calls.length) badge.style.display = 'block';
@@ -597,7 +589,7 @@ function loadApp() {
   renderTabs();
   renderGrid();
   loadCallLog();
-  setInterval(loadCallLog, 60000);
+  setInterval(loadCallLog, 120000);
   if (!history.length) {
     const greeting = salutation() + ', Madame Australia. Henri at your service — entirely at your disposal.';
     addMsg('henri', greeting);
@@ -614,6 +606,14 @@ window.onload = () => {
 };
 
 document.getElementById('inp').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    const id = btn.getAttribute('data-id');
+    if (action && id) callAction(action, id);
+  });
 </script>
 </body>
 </html>
