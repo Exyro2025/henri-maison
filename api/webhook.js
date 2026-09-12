@@ -1,6 +1,4 @@
 // api/webhook.js
-// Receives Vapi post-call webhooks and stores call summaries in Upstash Redis
-
 import { Redis } from '@upstash/redis';
 
 const redis = Redis.fromEnv();
@@ -20,26 +18,39 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true });
     }
 
-    const call = body.message;
-    const callerNumber = call?.call?.customer?.number || 'Unknown';
-    const startedAt = call?.call?.startedAt || new Date().toISOString();
-    const endedAt = call?.call?.endedAt || new Date().toISOString();
-    const summary = call?.summary || null;
-    const transcript = call?.transcript || null;
-    const durationSeconds = call?.call?.endedAt && call?.call?.startedAt
-      ? Math.round((new Date(call.call.endedAt) - new Date(call.call.startedAt)) / 1000)
+    const msg = body.message;
+    const call = msg?.call || {};
+    const callerNumber = call?.customer?.number || 'Unknown';
+    const startedAt = call?.startedAt || new Date().toISOString();
+    const endedAt = call?.endedAt || new Date().toISOString();
+    const durationSeconds = call?.endedAt && call?.startedAt
+      ? Math.round((new Date(call.endedAt) - new Date(call.startedAt)) / 1000)
       : null;
+
+    // Vapi puts summary and transcript at message level
+    const summary = msg?.summary || null;
+    const transcript = msg?.transcript || null;
+
+    // Build readable summary from transcript if no summary provided
+    let displaySummary = summary;
+    if (!displaySummary && transcript) {
+      // Take last 500 chars of transcript as fallback
+      displaySummary = transcript.length > 500
+        ? '...' + transcript.slice(-500)
+        : transcript;
+    }
+    if (!displaySummary) displaySummary = 'No summary available.';
 
     const isMadame = callerNumber === '+14159302512';
 
     const record = {
-      id: call?.call?.id || Date.now().toString(),
+      id: call?.id || Date.now().toString(),
       callerNumber,
       isMadame,
       startedAt,
       endedAt,
       durationSeconds,
-      summary,
+      summary: displaySummary,
       transcript,
       createdAt: new Date().toISOString()
     };
