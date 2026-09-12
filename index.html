@@ -535,8 +535,8 @@ function renderCallCards(calls, saved) {
       (dur ? '<div class="call-duration">Duration: ' + dur + '</div>' : '') +
       '<div class="call-summary">' + summary + '</div>' +
       '<div class="call-actions">' +
-      (saved ? '' : '<button class="call-action-btn save" onclick="callAction('save','' + c.id + '')">&#9733; Save</button>') +
-      '<button class="call-action-btn delete" onclick="callAction('delete','' + c.id + '')">&#10005; Delete</button>' +
+      (saved ? '' : '<button class="call-action-btn save" onclick="callAction(&quot;save&quot;,&quot;' + c.id + '&quot;)">&#9733; Save</button>') +
+      '<button class="call-action-btn delete" onclick="callAction(&quot;delete&quot;,&quot;' + c.id + '&quot;)">&#10005; Delete</button>' +
       '</div>' +
       '</div>';
   }).join('');
