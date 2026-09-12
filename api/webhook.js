@@ -1,7 +1,11 @@
 // api/webhook.js
-// Receives Vapi post-call webhooks and stores call summaries
+// Receives Vapi post-call webhooks and stores call summaries in Upstash Redis
 
-const MADAME_NUMBER = '+14159302512';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
+const CALL_LOG_KEY = 'henri:call-log';
+const MAX_CALLS = 50;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,7 +16,6 @@ export default async function handler(req, res) {
     const body = req.body;
     const type = body?.message?.type;
 
-    // Only process end-of-call reports
     if (type !== 'end-of-call-report') {
       return res.status(200).json({ received: true });
     }
@@ -27,10 +30,8 @@ export default async function handler(req, res) {
       ? Math.round((new Date(call.call.endedAt) - new Date(call.call.startedAt)) / 1000)
       : null;
 
-    // Determine if this was Madame calling or an external caller
-    const isMadame = callerNumber === MADAME_NUMBER;
+    const isMadame = callerNumber === '+14159302512';
 
-    // Build the notification record
     const record = {
       id: call?.call?.id || Date.now().toString(),
       callerNumber,
@@ -43,12 +44,8 @@ export default async function handler(req, res) {
       createdAt: new Date().toISOString()
     };
 
-    // Store in Vercel KV or fall back to a simple log endpoint
-    // We use a global in-memory store as a simple solution
-    // For persistence, add Vercel KV (free tier available)
-    if (!global.callLog) global.callLog = [];
-    global.callLog.unshift(record);
-    if (global.callLog.length > 50) global.callLog = global.callLog.slice(0, 50);
+    await redis.lpush(CALL_LOG_KEY, JSON.stringify(record));
+    await redis.ltrim(CALL_LOG_KEY, 0, MAX_CALLS - 1);
 
     return res.status(200).json({ success: true, record });
   } catch (err) {
