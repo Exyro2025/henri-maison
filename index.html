@@ -114,6 +114,14 @@
     .call-duration { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
     .call-summary { font-size: 12px; color: var(--text); line-height: 1.6; }
     .call-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 40px 0; }
+    .call-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .call-action-btn { background: none; border: 0.5px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: 10px; letter-spacing: 1px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .call-action-btn.save { color: var(--gold); border-color: var(--gold-faint); }
+    .call-action-btn.delete { color: var(--danger); border-color: var(--danger); }
+    .calls-tabs { display: flex; gap: 8px; padding: 0 16px 10px; }
+    .calls-tab { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 4px 14px; font-size: 10px; color: var(--text-muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .calls-tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+    .call-card.saved-card { border-color: var(--gold-faint); }
     .notif-badge { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); display: none; }
     .icon-btn-wrap { position: relative; }
   </style>
@@ -182,6 +190,10 @@
       <div class="calls-title">Call Log</div>
       <div class="calls-sub">Messages handled by Henri</div>
     </div>
+  </div>
+  <div class="calls-tabs">
+    <button class="calls-tab active" id="tab-recent" onclick="switchCallTab('recent')">Recent</button>
+    <button class="calls-tab" id="tab-saved" onclick="switchCallTab('saved')">Saved</button>
   </div>
   <div class="calls-body" id="calls-body">
     <div class="call-empty">No calls on record, Madame.</div>
@@ -497,33 +509,71 @@ function completeSetup() {
   loadApp();
 }
 
+let activeCallTab = 'recent';
+
+function switchCallTab(tab) {
+  activeCallTab = tab;
+  document.getElementById('tab-recent').className = 'calls-tab' + (tab === 'recent' ? ' active' : '');
+  document.getElementById('tab-saved').className = 'calls-tab' + (tab === 'saved' ? ' active' : '');
+  loadCallLog();
+}
+
+function renderCallCards(calls, saved) {
+  const body = document.getElementById('calls-body');
+  if (!calls.length) {
+    body.innerHTML = '<div class="call-empty">' + (saved ? 'No saved messages, Madame.' : 'No calls on record, Madame.') + '</div>';
+    return;
+  }
+  body.innerHTML = calls.map(c => {
+    const dt = new Date(c.startedAt);
+    const timeStr = dt.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const dur = c.durationSeconds ? Math.floor(c.durationSeconds / 60) + 'm ' + (c.durationSeconds % 60) + 's' : '';
+    const who = c.isMadame ? 'Madame Australia' : (c.callerNumber || 'Unknown caller');
+    const summary = c.summary || 'No summary available.';
+    return '<div class="call-card' + (saved ? ' saved-card' : '') + '" id="card-' + c.id + '">' +
+      '<div class="call-card-head"><span class="call-number">' + who + '</span><span class="call-time">' + timeStr + '</span></div>' +
+      (dur ? '<div class="call-duration">Duration: ' + dur + '</div>' : '') +
+      '<div class="call-summary">' + summary + '</div>' +
+      '<div class="call-actions">' +
+      (saved ? '' : '<button class="call-action-btn save" onclick="callAction('save','' + c.id + '')">&#9733; Save</button>') +
+      '<button class="call-action-btn delete" onclick="callAction('delete','' + c.id + '')">&#10005; Delete</button>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+
+async function callAction(action, id) {
+  try {
+    await fetch('/api/call-actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, id })
+    });
+    loadCallLog();
+  } catch (e) {
+    console.error('Call action error:', e);
+  }
+}
+
 async function loadCallLog() {
   try {
-    const res = await fetch('/api/call-log');
-    const data = await res.json();
-    const calls = data.calls || [];
-    const body = document.getElementById('calls-body');
     const badge = document.getElementById('notif-badge');
-
-    if (!calls.length) {
-      body.innerHTML = '<div class="call-empty">No calls on record, Madame.</div>';
-      badge.style.display = 'none';
-      return;
+    if (activeCallTab === 'saved') {
+      const res = await fetch('/api/call-actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get-saved', id: 'all' })
+      });
+      const data = await res.json();
+      renderCallCards(data.calls || [], true);
+    } else {
+      const res = await fetch('/api/call-log');
+      const data = await res.json();
+      const calls = data.calls || [];
+      if (calls.length) badge.style.display = 'block';
+      else badge.style.display = 'none';
+      renderCallCards(calls, false);
     }
-
-    badge.style.display = 'block';
-    body.innerHTML = calls.map(c => {
-      const dt = new Date(c.startedAt);
-      const timeStr = dt.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-      const dur = c.durationSeconds ? Math.floor(c.durationSeconds / 60) + 'm ' + (c.durationSeconds % 60) + 's' : '';
-      const who = c.isMadame ? 'Madame Australia' : (c.callerNumber || 'Unknown caller');
-      const summary = c.summary || 'No summary available.';
-      return '<div class="call-card">' +
-        '<div class="call-card-head"><span class="call-number">' + who + '</span><span class="call-time">' + timeStr + '</span></div>' +
-        (dur ? '<div class="call-duration">Duration: ' + dur + '</div>' : '') +
-        '<div class="call-summary">' + summary + '</div>' +
-        '</div>';
-    }).join('');
   } catch (e) {
     console.error('Call log error:', e);
   }
