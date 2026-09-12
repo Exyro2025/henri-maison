@@ -12,6 +12,10 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body;
+
+    // Log the full raw payload so we can see what Vapi sends
+    console.log('VAPI WEBHOOK PAYLOAD:', JSON.stringify(body, null, 2));
+
     const type = body?.message?.type;
 
     if (type !== 'end-of-call-report') {
@@ -27,14 +31,14 @@ export default async function handler(req, res) {
       ? Math.round((new Date(call.endedAt) - new Date(call.startedAt)) / 1000)
       : null;
 
-    // Vapi puts summary and transcript at message level
     const summary = msg?.summary || null;
     const transcript = msg?.transcript || null;
 
-    // Build readable summary from transcript if no summary provided
+    console.log('SUMMARY:', summary);
+    console.log('TRANSCRIPT:', transcript);
+
     let displaySummary = summary;
     if (!displaySummary && transcript) {
-      // Take last 500 chars of transcript as fallback
       displaySummary = transcript.length > 500
         ? '...' + transcript.slice(-500)
         : transcript;
