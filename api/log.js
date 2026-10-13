@@ -30,7 +30,10 @@ export default async function handler(req, res) {
         task: body.task || '',
         outcome: body.outcome || '',
         amount: body.amount || null,
-        category: body.category || 'General'
+        category: body.category || 'General',
+        confirmation: body.confirmation || null,
+        callback_number: body.callback_number || null,
+        payment_deadline: body.payment_deadline || null
       };
 
       await fetch(`${kvUrl}/lpush/henri_logs`, {
@@ -41,6 +44,39 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify(JSON.stringify(entry))
       });
+
+      // Send SMS confirmation to Madame
+      try {
+        const telnyxKey = process.env.TELNYX_API_KEY;
+        const profileId = process.env.TELNYX_MESSAGING_PROFILE_ID;
+        const madamePhone = process.env.MADAME_PHONE;
+
+        if (telnyxKey && madamePhone) {
+          let smsText = `Henri — ${entry.category}\n${entry.vendor}\n${entry.task}`;
+          if (entry.outcome) smsText += `\nOutcome: ${entry.outcome}`;
+          if (entry.confirmation) smsText += `\nConf #: ${entry.confirmation}`;
+          if (entry.callback_number) smsText += `\nCall back: ${entry.callback_number}`;
+          if (entry.payment_deadline) smsText += `\nPayment by: ${entry.payment_deadline}`;
+          if (entry.amount) smsText += `\nAmount: $${entry.amount}`;
+
+          await fetch('https://api.telnyx.com/v2/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${telnyxKey}`
+            },
+            body: JSON.stringify({
+              from: '+12137760703',
+              to: madamePhone,
+              text: smsText,
+              messaging_profile_id: profileId
+            })
+          });
+        }
+      } catch (smsErr) {
+        // Don't fail the log if SMS fails
+        console.error('SMS send failed:', smsErr.message);
+      }
 
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ success: true, entry }));
