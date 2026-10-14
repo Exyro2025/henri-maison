@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     await redis.lpush(CALL_LOG_KEY, JSON.stringify(record));
     await redis.ltrim(CALL_LOG_KEY, 0, MAX_CALLS - 1);
 
-    // Also save to henri_logs for the Activity Ledger
+    // Save to henri_logs for the Activity Ledger
     try {
       const kvUrl = process.env.KV_REST_API_URL;
       const kvToken = process.env.KV_REST_API_TOKEN;
@@ -92,31 +92,29 @@ export default async function handler(req, res) {
       console.error('Ledger save failed:', ledgerErr.message);
     }
 
-    // Send SMS to Madame
+    // Send Pushover notification to Madame's phone
     try {
-      const telnyxKey = process.env.TELNYX_API_KEY;
-      const profileId = process.env.TELNYX_MESSAGING_PROFILE_ID;
-      const madamePhone = process.env.MADAME_PHONE;
+      const pushoverToken = process.env.PUSHOVER_API_TOKEN;
+      const pushoverUser = process.env.PUSHOVER_USER_KEY;
 
-      if (telnyxKey && madamePhone) {
-        const smsText = `Henri — Call Summary\n${displaySummary.substring(0, 350)}`;
+      if (pushoverToken && pushoverUser) {
+        const pushMessage = displaySummary.substring(0, 1000);
 
-        await fetch('https://api.telnyx.com/v2/messages', {
+        await fetch('https://api.pushover.net/1/messages.json', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${telnyxKey}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: '+12137760703',
-            to: madamePhone,
-            text: smsText,
-            messaging_profile_id: profileId
+            token: pushoverToken,
+            user: pushoverUser,
+            title: `Henri — ${isMadame ? 'Call from Madame' : 'Call Summary'}`,
+            message: pushMessage,
+            priority: 0,
+            sound: 'intermission'
           })
         });
       }
-    } catch (smsErr) {
-      console.error('SMS send failed:', smsErr.message);
+    } catch (pushErr) {
+      console.error('Pushover send failed:', pushErr.message);
     }
 
     // Send Email to Madame
